@@ -590,50 +590,6 @@ User row includes `money`, `exp`, `level`, `daily`, `banned`, `approved`, `stats
 
 ---
 
-## Full Command Example
-
-```js
-import { Response } from '../../../core/system/Response.js';
-
-export const eren = {
-  name: 'confirm',
-  version: '1.0.0',
-  aliases: ['ok'],
-  description: 'Ask for a yes / no, then wait for a reply.',
-  author: 'S4Eren',
-  category: 'utility',
-  type: 'anyone',
-  usePrefix: 'both',
-  cooldown: 3,
-  guide: ['']
-};
-
-export async function onStart({ response, senderID }) {
-  const keyboard = Response.buildInlineKeyboard([[
-    { text: 'Yes', data: { command: 'confirm', args: ['yes'] } },
-    { text: 'No',  data: { command: 'confirm', args: ['no'] } }
-  ]]);
-
-  const sent = await response.reply('Continue?', { reply_markup: keyboard });
-
-  global.Sakura.onReply.set(sent.message_id, {
-    commandName: 'confirm',
-    senderID
-  });
-}
-
-export async function onCallback({ payload, response, callbackQuery }) {
-  await response.edit('text', callbackQuery.message, `Picked: ${payload.args?.[0]}`);
-}
-
-export async function onReply({ Reply, event, response }) {
-  Reply.delete();
-  await response.reply(`You replied: ${event.text || ''}`);
-}
-```
-
----
-
 ## Database
 
 | Type | Best for |
