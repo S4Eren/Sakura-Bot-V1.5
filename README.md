@@ -9,23 +9,25 @@
 <img src="https://img.shields.io/badge/PLATFORM-TELEGRAM-26A5E4?style=for-the-badge&logo=telegram&logoColor=white&labelColor=1a1020">
 <img src="https://img.shields.io/badge/LICENSE-MIT-6c8cff?style=for-the-badge&labelColor=1a1020">
 
-<br>
-
 <img src="https://img.shields.io/badge/DEPLOY-RENDER-46E3B7?style=for-the-badge&logo=render&logoColor=white&labelColor=1a1020">
 <img src="https://img.shields.io/badge/DATABASE-SQLite%20%7C%20MongoDB%20%7C%20JSON-c084fc?style=for-the-badge&labelColor=1a1020">
 
 <p>
-  <a href="#quick-start">Quick Start</a> ·
+  <a href="#quick-start">Start</a> ·
   <a href="#run-on-render">Render</a> ·
-  <a href="#configuration">Config</a> ·
-  <a href="#project-structure">Structure</a>
+  <a href="#creating-commands">Commands</a> ·
+  <a href="#available-parameters">Params</a> ·
+  <a href="#response-api">Response</a> ·
+  <a href="#handler-types">Handlers</a> ·
+  <a href="#command-types">Types</a> ·
+  <a href="#global-state--globalsakura">Global</a>
 </p>
 
 </div>
 
 ---
 
-**Sakura** is a modular Telegram bot engine by **S4Eren**.  
+**Sakura** is a modular Telegram bot engine by **S4Eren**.
 Commands live in `scripts/cmds` and can change between updates — use `/help` inside Telegram for the live list.
 
 ```text
@@ -64,9 +66,7 @@ pkg update -y && pkg install -y nodejs git python make clang \
 npm install
 ```
 
-### 2. Put your token
-
-Create a bot with [@BotFather](https://t.me/BotFather), then edit `json/tokens.json`:
+### 2. Add your bot token — `json/tokens.json`
 
 ```json
 [
@@ -76,17 +76,17 @@ Create a bot with [@BotFather](https://t.me/BotFather), then edit `json/tokens.j
 
 Multiple tokens = multiple bot instances from one process.
 
-### 3. Set owner + prefix
-
-Edit `json/config.json`:
+### 3. Configure the bot — `json/config.json`
 
 ```json
 {
+  "timezone": "Asia/Dhaka",
   "developer": "YOUR_NAME",
   "prefix": "/",
   "subprefix": ["+", "-", "#"],
+  "usePrefix": true,
   "devID": ["YOUR_TELEGRAM_USER_ID"],
-  "timezone": "Asia/Dhaka",
+  "premium": [],
   "database": {
     "type": "sqlite",
     "mongodbURI": ""
@@ -96,7 +96,25 @@ Edit `json/config.json`:
 
 `devID` must be your **numeric** Telegram ID. After first start you can also run `/uid`.
 
-### 4. Run locally
+| Field | Description |
+|-------|-------------|
+| `prefix` / `subprefix` | Accepted command prefixes |
+| `usePrefix` | `true` / `false` / `"both"` |
+| `devID` | Developer IDs (role `2`) |
+| `premium` | Premium IDs (role `1`) |
+| `adminOnly` | Lock the whole bot to developers |
+| `whiteListMode` | Allow only listed users |
+| `whiteListModeThread` | Allow only listed groups |
+| `approve` | User / group approval gate |
+| `database.type` | `sqlite` · `mongodb` · `json` |
+| `economy.daily` | Daily reward amount |
+| `reaction.success` / `reaction.error` | Auto reactions after a command |
+| `timezone` | Clock + logs |
+| `hideNotiMessage` | Hide “not found” / permission notices |
+
+`json/config.json` and `json/messages.json` reload while the bot is running.
+
+### 4. Start
 
 ```bash
 npm start
@@ -105,26 +123,25 @@ npm start
 | Script | What it does |
 |--------|----------------|
 | `npm start` | Production start → `core/main.js` |
-| `npm run dev` | Watch mode (auto restart on edit) |
-| `npm run start:trace` | Same start + stack traces |
+| `npm run dev` | Watch mode |
+| `npm run start:trace` | Start + stack traces |
 | `node index.js` | Process wrapper with graceful restart |
 
 Dashboard: **http://localhost:3000**
-
-If the bot is online, send `/help` in Telegram.
+Then send `/help` in Telegram.
 
 ---
 
 ## Run on Render
 
-Sakura already starts a web dashboard, so Render can treat it as a **Web Service**.  
+Sakura already starts a web dashboard, so Render can treat it as a **Web Service**.
 The dashboard port in code is `SAKURA_DASH_PORT` (default `3000`). Render health-checks `$PORT`, so you must map them.
 
 ### Before you deploy
 
-1. Push the repo to GitHub (your fork or this repo).
-2. Fill `json/tokens.json` and `json/config.json` **in that repo** (or use a private repo — tokens in a public repo can be stolen).
-3. For production data that should survive redeploys, switch database to MongoDB:
+1. Push the repo to GitHub.
+2. Fill `json/tokens.json` and `json/config.json` (use a **private** repo — public tokens get stolen).
+3. For data that must survive redeploys, use MongoDB:
 
 ```json
 "database": {
@@ -133,13 +150,13 @@ The dashboard port in code is `SAKURA_DASH_PORT` (default `3000`). Render health
 }
 ```
 
-Free Render disks are ephemeral. SQLite files reset on every deploy.
+Free Render disks wipe SQLite on every deploy. Mongo also reads `process.env.MONGODB_URI` if the config URI is empty.
 
 ### Create the service
 
-1. Open [Render Dashboard](https://dashboard.render.com) → **New +** → **Web Service**
-2. Connect the GitHub repo `Sakura-Bot-V1.5`
-3. Use these settings:
+1. [Render Dashboard](https://dashboard.render.com) → **New +** → **Web Service**
+2. Connect `Sakura-Bot-V1.5`
+3. Settings:
 
 | Field | Value |
 |-------|--------|
@@ -147,96 +164,40 @@ Free Render disks are ephemeral. SQLite files reset on every deploy.
 | Branch | `main` |
 | **Build Command** | `npm install` |
 | **Start Command** | `SAKURA_DASH_PORT=$PORT npm start` |
-| Instance | Free works if you add the service to Sakura Uptime |
+| Instance | Free works if you add the URL to Sakura Uptime |
 
-4. **Environment → Environment Variables**
+4. Environment variables:
 
 | Key | Value |
 |-----|--------|
 | `NODE_VERSION` | `20.18.0` |
 | `NODE_ENV` | `production` |
-| `MONGODB_URI` | your Atlas URI *(only if you use MongoDB)* |
+| `MONGODB_URI` | Atlas URI *(only if you use MongoDB)* |
 
-5. Deploy. Wait until logs show:
-
-```text
-Database connected: sqlite
-Dashboard running → http://localhost:XXXX
-Bot started
-```
-
-6. Open the Render URL — that is the Sakura dashboard. Then test `/help` on Telegram.
-
-### If `canvas` / `sqlite3` fails on Render
-
-Native modules need compilers and Cairo. If the build errors, you can temporarily use the JSON database so `sqlite3` is not required:
-
-```json
-"database": { "type": "json", "mongodbURI": "" }
-```
-
-Image commands that draw with `canvas` still need Cairo on the host.
+5. Deploy. Logs should show database connected + dashboard + bot started.
+6. Open the Render URL (dashboard), then test `/help` on Telegram.
 
 ### Keep the bot alive (Render Free)
 
 Render Free sleeps when nobody hits the URL. Sleep = bot offline.
 
-Use **Sakura Uptime** so the dashboard URL stays warm:
-
-1. Deploy Sakura and copy your Render URL  
-   Example: `https://sakura-bot.onrender.com`
+1. Copy your Render URL — example `https://sakura-bot.onrender.com`
 2. Open [Sakura Uptime Monitor](http://sakura-uptime-monitor.onrender.com)
 3. **Get Started** / **Start Monitoring Free**
-4. Add that Render URL as a monitor
+4. Add that Render URL
 
-The monitor pings the service on a schedule so Render does not spin it down.
+The monitor pings the dashboard so Render does not spin the service down.
 
 ### Local → Render checklist
 
 ```text
-[ ] BotFather token in json/tokens.json
-[ ] Your numeric ID in json/config.json → devID
-[ ] prefix / timezone set
-[ ] database type chosen (mongodb recommended on Render)
+[ ] token in json/tokens.json
+[ ] numeric ID in json/config.json → devID
+[ ] database type chosen (mongodb on Render)
 [ ] Start command maps SAKURA_DASH_PORT to $PORT
 [ ] Render URL added on sakura-uptime-monitor.onrender.com
-[ ] After deploy: /help works in Telegram
+[ ] /help works in Telegram
 ```
-
----
-
-## Configuration
-
-All live settings: `json/config.json`  
-Reply templates: `json/messages.json`  
-Tokens: `json/tokens.json`
-
-Both `config.json` and `messages.json` are watched and reload without a full restart.
-
-| Key | Purpose |
-|-----|---------|
-| `prefix` / `subprefix` | Command prefixes |
-| `usePrefix` | Require a prefix |
-| `devID` | Developer IDs |
-| `premium` | Premium user IDs |
-| `adminOnly` | Lock bot to developers |
-| `whiteListMode` | Allow only listed users |
-| `whiteListModeThread` | Allow only listed groups |
-| `approve` | User / group approval gate |
-| `database.type` | `sqlite` · `mongodb` · `json` |
-| `economy.daily` | Daily reward amount |
-| `reaction` | Success / error reactions |
-| `timezone` | Clock + logs |
-
-Commands are **not** hardcoded here. After the bot is running:
-
-```text
-/help          live command menu
-/help <name>   usage for one command
-/status        runtime info
-```
-
-New modules go in `scripts/cmds/<category>/` and can be loaded with the developer `cmd` tool — no README edit needed.
 
 ---
 
@@ -245,89 +206,429 @@ New modules go in `scripts/cmds/<category>/` and can be loaded with the develope
 ```text
 Sakura-Bot-V1.5/
 │
-├── banner.png                 # README / brand banner
-├── index.js                   # process wrapper (start / stop / restart)
+├── banner.png
+├── index.js                      # process wrapper
 ├── package.json
 │
 ├── json/
-│   ├── config.json            # prefixes, owners, db, economy
-│   ├── tokens.json            # Telegram bot token list
-│   └── messages.json          # reply strings
+│   ├── config.json               # prefixes, owners, db, economy
+│   ├── tokens.json               # Telegram bot token list
+│   └── messages.json             # reply strings
 │
 ├── core/
-│   ├── main.js                # engine entry — db, loaders, bots, dashboard
+│   ├── main.js                   # boot: db, loaders, bots, dashboard
 │   │
 │   ├── system/
-│   │   ├── config.json        # logger label map
-│   │   ├── log.js             # colored console logger
-│   │   ├── login.js           # load commands + events
-│   │   ├── handlerAction.js   # message / callback / command router
-│   │   ├── handlerEvent.js    # Telegram event router
-│   │   ├── Response.js        # reply / send / edit helpers
-│   │   └── notify.js          # owner / system notices
+│   │   ├── config.json           # logger labels
+│   │   ├── log.js
+│   │   ├── login.js              # scan scripts/cmds + scripts/events
+│   │   ├── handlerAction.js      # update dispatcher
+│   │   ├── handlerEvent.js       # onStart / onChat / onReply / …
+│   │   ├── Response.js           # Telegram helper
+│   │   └── notify.js             # owner notices + approve buttons
 │   │
 │   ├── database/
-│   │   ├── index.js           # picks adapter + builds controllers
-│   │   ├── adapters/
-│   │   │   ├── json.js
-│   │   │   ├── sqlite.js
-│   │   │   └── mongodb.js
-│   │   └── controllers/
-│   │       ├── users.js
-│   │       ├── threads.js
-│   │       └── global.js
+│   │   ├── index.js
+│   │   ├── adapters/             # json.js · sqlite.js · mongodb.js
+│   │   └── controllers/          # users.js · threads.js · global.js
 │   │
 │   └── web/
-│       ├── server.js          # dashboard HTTP API
-│       └── index.html         # dashboard UI
+│       ├── server.js             # dashboard HTTP API
+│       └── index.html
 │
 └── scripts/
-    ├── cmds/                  # commands grouped by category
-    │   ├── administrator/
-    │   ├── ai-image/
-    │   ├── developer/
-    │   ├── economy/
-    │   ├── game/
-    │   ├── group/
-    │   ├── image/
-    │   ├── system/
-    │   ├── tools/
-    │   └── utility/
+    ├── cmds/                     # one folder per category
     └── events/
         ├── welcome.js
         └── goodbye.js
 ```
 
-### Core map
+---
 
-| Path | Role |
-|------|------|
-| `core/main.js` | Boot sequence, watchers, multi-token login |
-| `core/system/login.js` | Scans `scripts/cmds` + `scripts/events` |
-| `core/system/handlerAction.js` | Permissions, cooldown, command run |
-| `core/system/handlerEvent.js` | Welcome / goodbye and other events |
-| `core/system/Response.js` | Unified Telegram replies |
-| `core/database/index.js` | `sqlite` / `mongodb` / `json` |
-| `core/web/server.js` | Dashboard on `SAKURA_DASH_PORT` or `3000` |
+## Creating Commands
 
-### Command module shape
+Commands live under `scripts/cmds/<category>/`. Each file is an ESM module. **Do not import the engine** — everything is injected as handler arguments.
+
+Metadata export is named **`eren`** (not `meta`).
 
 ```js
 export const eren = {
   name: 'example',
   version: '1.0.0',
   aliases: ['ex'],
-  description: 'Short summary shown in /help',
+  description: 'Short summary shown in /help.',
   author: 'S4Eren',
   category: 'utility',
-  type: 'anyone',          // anyone | administrator | developer
-  usePrefix: 'both',
-  cooldown: 3,
-  guide: ['<args>']
+  type: 'anyone',          // see Command Types
+  usePrefix: 'both',       // true | false | 'both'
+  cooldown: 3,             // seconds (skipped for premium + developer)
+  balance: 0,              // coin cost (skipped for premium + developer)
+  guide: ['<text>']
 };
 
-export async function onStart({ event, response }) {
-  await response.reply('Sakura is online.');
+export async function onStart({ args, response, usage }) {
+  if (!args.length) return usage();
+  await response.reply(`You said: ${args.join(' ')}`);
+}
+```
+
+Drop the file in the matching category folder and restart, or load it live with the developer `cmd` tool.
+
+`usePrefix`:
+
+| Value | Meaning |
+|-------|---------|
+| `true` | Prefix required |
+| `false` | No prefix |
+| `'both'` | Works with or without a prefix |
+
+Developers always bypass the prefix rule.
+
+---
+
+## Available Parameters
+
+Every handler receives the same base object. Take only what you need.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `bot` | `TelegramBot` | Raw `node-telegram-bot-api` instance |
+| `api` | `object` | Optional URLs on `global.Sakura.api` |
+| `event` | `object` | Resolved Telegram message |
+| `body` | `string` | Full text or caption |
+| `args` | `string[]` | Words after the command name (`onStart`) |
+| `response` | `Response` | Message helper — see Response API |
+| `role` | `number` | `0` anyone · `1` premium · `2` developer |
+| `config` | `object` | Live `json/config.json` |
+| `senderID` | `string` | Sender Telegram ID |
+| `chatId` | `number` | Chat ID |
+| `messageID` | `number` | Trigger message ID |
+| `isGroup` | `boolean` | Group / supergroup |
+| `from` | `object` | Raw Telegram `from` |
+| `commandName` | `string` | Resolved command name |
+| `usedPrefix` | `string` | Prefix the user typed (`onStart`) |
+| `usage` | `function` | Sends `eren.guide` |
+| `usersData` | `object` | User controller |
+| `threadsData` | `object` | Thread / group controller |
+| `globalData` | `object` | Global key-value controller |
+| `userData` | `object` | This sender’s row |
+| `threadData` | `object` | This chat’s row |
+
+`onCallback` also gets:
+
+| Parameter | Description |
+|-----------|-------------|
+| `callbackQuery` | Raw callback query |
+| `payload` | Parsed `callback_data` |
+
+`onReply` also gets `Reply` (saved data + `Reply.delete()`).
+`onReaction` also gets `Reaction` (saved data + `Reaction.delete()`).
+
+---
+
+## Response API
+
+All Telegram calls go through `response`. `**bold**` is converted to Telegram Markdown `*bold*`.
+
+### Send
+
+```js
+await response.send('Hello!');                 // no quote
+await response.reply('Hello!');                // quotes the user in groups
+await response.sendTo(chatId, 'Hello!');
+await response.forDev('Something happened.');  // every config.devID
+```
+
+### Upload
+
+```js
+await response.upload('photo',      fileOrUrl, { caption: 'Caption' });
+await response.upload('audio',      fileOrUrl);
+await response.upload('video',      fileOrUrl);
+await response.upload('document',   buffer, { filename: 'file.json' });
+await response.upload('sticker',    fileOrUrl);
+await response.upload('animation',  fileOrUrl);
+await response.upload('voice',      fileOrUrl);
+await response.upload('video_note', fileOrUrl);
+await response.upload('media_group', [
+  { type: 'photo', media: url1, caption: 'First' },
+  { type: 'photo', media: url2 }
+]);
+```
+
+### Extra
+
+```js
+await response.location(lat, lng);
+await response.venue(lat, lng, 'Title', 'Address');
+await response.contact('+8801XXXXXXXXX', 'Name');
+await response.poll('Best fruit?', ['Mango', 'Litchi']);
+await response.dice();
+await response.action('typing');   // typing | upload_photo | upload_document | …
+```
+
+### Edit / delete / react
+
+```js
+await response.edit('text',    sentMsg, 'New text');
+await response.edit('caption', sentMsg, 'New caption');
+await response.edit('media',   sentMsg, { type: 'photo', media: newUrl });
+await response.edit('markup',  sentMsg, { inline_keyboard: [...] });
+await response.update(loadingMsg, 'Done!');
+await response.delete(sentMsg);
+
+await response.react('🔥');
+await response.react('👍', sentMsg);
+await response.react(null);        // clear
+```
+
+Command success / error reactions are also applied automatically from `config.reaction`.
+
+### Callbacks + keyboards
+
+```js
+await response.answerCallback(callbackQuery);
+await response.answerCallback(callbackQuery, { text: 'Done!' });
+await response.answerCallback(callbackQuery, { text: 'Error!', show_alert: true });
+
+import { Response } from '../../core/system/Response.js';
+
+const keyboard = Response.buildInlineKeyboard([
+  [
+    { text: 'Yes', data: { command: 'example', args: ['yes'] } },
+    { text: 'No',  data: { command: 'example', args: ['no'] } }
+  ],
+  [{ text: 'Open', url: 'https://example.com' }]
+]);
+
+await response.reply('Choose:', { reply_markup: keyboard });
+```
+
+---
+
+## Handler Types
+
+### `onStart` — prefix command
+
+```js
+export async function onStart({ args, response, usage }) {
+  if (!args.length) return usage();
+}
+```
+
+### `onChat` — every normal message
+
+```js
+export async function onChat({ body, response }) {
+  if (!body) return;
+}
+```
+
+### `onReply` — user replies to a registered bot message
+
+```js
+const sent = await response.reply('Reply with your name.');
+global.Sakura.onReply.set(sent.message_id, {
+  commandName: 'example',
+  senderID
+});
+
+export async function onReply({ Reply, event, response }) {
+  Reply.delete();
+  await response.reply(`Name: ${event.text || ''}`);
+}
+```
+
+### `onCallback` — inline button
+
+```js
+export async function onCallback({ payload, response, callbackQuery }) {
+  const action = payload.args?.[0];
+  await response.edit('text', callbackQuery.message, `You chose: ${action}`);
+}
+```
+
+### `onEvent` — join / leave / service updates
+
+Used by `scripts/events/welcome.js` and `goodbye.js`.
+
+```js
+export async function onEvent({ event, response, isGroup, threadData }) {
+  if (!isGroup || !event.new_chat_members) return;
+}
+```
+
+### `onAnyEvent` — every update
+
+Runs before the other handlers.
+
+### `onFirstChat` — first time this `chatId` hits the module
+
+### `onReaction` — user reacted to a registered bot message
+
+```js
+global.Sakura.onReaction.set(sentMsg.message_id, {
+  commandName: 'example',
+  senderID
+});
+```
+
+---
+
+## User Roles
+
+Assigned from `config.devID` and `config.premium`:
+
+| Value | Name | Who |
+|------:|------|-----|
+| `2` | developer | `devID` |
+| `1` | premium | `premium` |
+| `0` | anyone | everyone else |
+
+```js
+export async function onStart({ role, response }) {
+  if (role < 1) return response.reply('Premium only.');
+  if (role < 2) return response.reply('Premium user.');
+  await response.reply('Developer.');
+}
+```
+
+Per-handler minimums:
+
+```js
+export const eren = {
+  name: 'example',
+  type: 'anyone',
+  role: {
+    onStart: 0,
+    onReply: 1,
+    onCallback: 0
+  }
+};
+```
+
+Cooldowns and `eren.balance` apply to role `0` only. Premium and developers skip both.
+
+---
+
+## Command Types
+
+`eren.type` controls **who can run it** and **where**.
+
+| Type | Who / where |
+|------|-------------|
+| `anyone` | Everybody, everywhere |
+| `premium` | Premium + developer |
+| `developer` | `devID` only |
+| `administrator` | Group admins + developer (private chat: developer only) |
+| `group` | Groups only |
+| `private` | Private chat only |
+| `hidden` | Runnable by name, kept out of `/help` style listings |
+
+```js
+export const eren = { name: 'gid', type: 'group' };
+export const eren = { name: 'shell', type: 'developer' };
+export const eren = { name: 'adboxonly', type: 'administrator' };
+```
+
+Group settings can also disable whole categories:
+
+- `threadData.settings.games === false` → `category: 'game'` blocked
+- `threadData.settings.economy === false` → `category: 'economy'` blocked
+
+`/help` shows the live list for the current user. Do not hardcode every command in this README.
+
+```text
+/help           menu
+/help <name>    one command
+/help all       full list
+/status         runtime
+```
+
+---
+
+## Global State — `global.Sakura`
+
+Available from any command without importing.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `global.Sakura.commands` | `Map` | Loaded commands by name |
+| `global.Sakura.aliases` | `Map` | Alias → name |
+| `global.Sakura.eventCommands` | `Map` | Loaded events |
+| `global.Sakura.onReply` | `Map` | Reply listeners |
+| `global.Sakura.onReaction` | `Map` | Reaction listeners |
+| `global.Sakura.onChat` | `array` | Commands with `onChat` |
+| `global.Sakura.onEvent` | `array` | Commands / events with `onEvent` |
+| `global.Sakura.onAnyEvent` | `array` | `onAnyEvent` modules |
+| `global.Sakura.onFirstChat` | `array` | `onFirstChat` modules |
+| `global.Sakura.cooldowns` | `Map` | `command:senderID → ms` |
+| `global.Sakura.config` | `object` | Live config |
+| `global.Sakura.messages` | `object` | Live `messages.json` |
+| `global.Sakura.api` | `object` | Optional API map you attach |
+| `global.Sakura.bots` | `array` | `{ bot, username, index }` |
+| `global.Sakura.botUsername` | `string` | Primary username |
+| `global.Sakura.startTime` | `number` | Boot time (ms) |
+| `global.Sakura.db` | `object` | Active adapter + type |
+| `global.Sakura.usersData` | `object` | Users controller |
+| `global.Sakura.threadsData` | `object` | Threads controller |
+| `global.Sakura.globalData` | `object` | Global controller |
+| `global.Sakura.log` | `object` | `.commands()` `.events()` `.error()` `.warn()` `.info()` |
+
+### Database helpers
+
+```js
+const user = await usersData.get(senderID);
+await usersData.set(senderID, { money: 1000 });
+await usersData.addExp(senderID, 20);
+
+const thread = await threadsData.get(chatId);
+await globalData.set('key', value);
+```
+
+User row includes `money`, `exp`, `level`, `daily`, `banned`, `approved`, `stats`, `data`.
+
+---
+
+## Full Command Example
+
+```js
+import { Response } from '../../../core/system/Response.js';
+
+export const eren = {
+  name: 'confirm',
+  version: '1.0.0',
+  aliases: ['ok'],
+  description: 'Ask for a yes / no, then wait for a reply.',
+  author: 'S4Eren',
+  category: 'utility',
+  type: 'anyone',
+  usePrefix: 'both',
+  cooldown: 3,
+  guide: ['']
+};
+
+export async function onStart({ response, senderID }) {
+  const keyboard = Response.buildInlineKeyboard([[
+    { text: 'Yes', data: { command: 'confirm', args: ['yes'] } },
+    { text: 'No',  data: { command: 'confirm', args: ['no'] } }
+  ]]);
+
+  const sent = await response.reply('Continue?', { reply_markup: keyboard });
+
+  global.Sakura.onReply.set(sent.message_id, {
+    commandName: 'confirm',
+    senderID
+  });
+}
+
+export async function onCallback({ payload, response, callbackQuery }) {
+  await response.edit('text', callbackQuery.message, `Picked: ${payload.args?.[0]}`);
+}
+
+export async function onReply({ Reply, event, response }) {
+  Reply.delete();
+  await response.reply(`You replied: ${event.text || ''}`);
 }
 ```
 
@@ -335,15 +636,11 @@ export async function onStart({ event, response }) {
 
 ## Database
 
-Set `database.type` in `json/config.json`.
-
 | Type | Best for |
 |------|----------|
 | `sqlite` | Local VPS / PC (default) |
-| `mongodb` | Render / any host where disk is wiped |
+| `mongodb` | Render / ephemeral disk |
 | `json` | Tiny tests, no native addon |
-
-Mongo can also read `process.env.MONGODB_URI` if the config URI is empty.
 
 ---
 
@@ -351,13 +648,13 @@ Mongo can also read `process.env.MONGODB_URI` if the config URI is empty.
 
 | Problem | Fix |
 |---------|-----|
-| Bot starts, no replies | Token, prefix, `approve` / whitelist / `adminOnly` |
-| `canvas` install error | Install Cairo / Pango / jpeg system libs, then `npm install` |
-| `sqlite3` install error | Install `libsqlite3-dev` + `python3 make g++` |
-| Render deploy is live but Telegram silent | Start command must be `SAKURA_DASH_PORT=$PORT npm start` |
-| Render deploy healthy, data resets | Move to MongoDB Atlas |
-| Bot dies after some minutes on Render Free | Add your Render URL to [Sakura Uptime](http://sakura-uptime-monitor.onrender.com) |
-| Group ignored | Approve that group if `approve.enable` is on |
+| Bot starts, no replies | Token, prefix, approve / whitelist / adminOnly |
+| `canvas` install error | Install Cairo / Pango / jpeg libs, then `npm install` |
+| `sqlite3` install error | `libsqlite3-dev` + `python3 make g++` |
+| Render live, Telegram silent | Start command must be `SAKURA_DASH_PORT=$PORT npm start` |
+| Render healthy, data resets | MongoDB Atlas |
+| Bot dies after minutes on Render Free | Add the Render URL to [Sakura Uptime](http://sakura-uptime-monitor.onrender.com) |
+| Group ignored | Approve the group if `approve.enable` is on |
 
 ---
 
