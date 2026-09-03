@@ -26,6 +26,11 @@ const configPath = path.join(ROOT, 'json', 'config.json');
 const tokensPath = path.join(ROOT, 'json', 'tokens.json');
 const messagesPath = path.join(ROOT, 'json', 'messages.json');
 
+
+// ============================================================
+// CONFIG
+// ============================================================
+
 const config = JSON.parse(
 	fs.readFileSync(configPath, 'utf8')
 );
@@ -48,7 +53,7 @@ function loadMessages() {
 		return JSON.parse(
 			fs.readFileSync(messagesPath, 'utf8')
 		);
-	} catch (e) {
+	} catch {
 		log.warn(
 			'messages.json missing or invalid — using empty messages object.'
 		);
@@ -98,9 +103,10 @@ fs.watch(configPath, (eventType) => {
 let messagesLastMod = 0;
 
 try {
-	messagesLastMod = fs.statSync(messagesPath).mtimeMs;
+	messagesLastMod =
+		fs.statSync(messagesPath).mtimeMs;
 } catch {
-	// File may be added later.
+	// File may not exist yet.
 }
 
 try {
@@ -109,13 +115,15 @@ try {
 
 		setTimeout(() => {
 			try {
-				const newMod = fs.statSync(messagesPath).mtimeMs;
+				const newMod =
+					fs.statSync(messagesPath).mtimeMs;
 
 				if (newMod === messagesLastMod) return;
 
 				messagesLastMod = newMod;
 
-				global.Sakura.messages = loadMessages();
+				global.Sakura.messages =
+					loadMessages();
 
 				log.info('Messages reloaded.');
 			} catch {
@@ -126,7 +134,7 @@ try {
 		}, 200);
 	});
 } catch {
-	// messages.json not present yet — skip watcher
+	// messages.json not present yet.
 }
 
 
@@ -135,6 +143,7 @@ try {
 // ============================================================
 
 async function processWithSakura({ body }) {
+
 	const prefix =
 		global.Sakura.config.prefix || '/';
 
@@ -158,10 +167,11 @@ async function processWithSakura({ body }) {
 
 
 // ============================================================
-// GLOBAL SAKURA OBJECT
+// GLOBAL SAKURA
 // ============================================================
 
 global.Sakura = {
+
 	startTime:
 		Date.now() -
 		process.uptime() * 1000,
@@ -215,7 +225,7 @@ global.Sakura = {
 	globalData: null,
 
 
-	// Sakura processor
+	// Processor
 	processWithSakura,
 
 	config,
@@ -225,17 +235,23 @@ global.Sakura = {
 
 	// Logger
 	log: {
-		commands: msg => log.commands(msg),
+		commands: msg =>
+			log.commands(msg),
 
-		events: msg => log.events(msg),
+		events: msg =>
+			log.events(msg),
 
-		error: msg => log.error(msg),
+		error: msg =>
+			log.error(msg),
 
-		warn: msg => log.warn(msg),
+		warn: msg =>
+			log.warn(msg),
 
-		info: msg => log.info(msg),
+		info: msg =>
+			log.info(msg),
 
-		sakura: msg => log.info(msg)
+		sakura: msg =>
+			log.info(msg)
 	}
 };
 
@@ -245,6 +261,7 @@ global.Sakura = {
 // ============================================================
 
 function recordUptimeSample() {
+
 	if (!global.Sakura) return;
 
 	const history =
@@ -259,7 +276,6 @@ function recordUptimeSample() {
 			global.Sakura.startTime
 	});
 
-	// Keep approximately 72 hours of minute samples.
 	if (history.length > 4320) {
 		history.shift();
 	}
@@ -290,9 +306,9 @@ setInterval(
 	);
 
 
-	// ----------------------------------------------------------
+	// ========================================================
 	// TOKEN CHECK
-	// ----------------------------------------------------------
+	// ========================================================
 
 	if (
 		tokens.length === 0 ||
@@ -302,6 +318,7 @@ setInterval(
 				t === 'YOUR_BOT_TOKEN_HERE'
 		)
 	) {
+
 		log.error(
 			'No valid tokens in json/tokens.json — exiting.'
 		);
@@ -310,9 +327,9 @@ setInterval(
 	}
 
 
-	// ----------------------------------------------------------
+	// ========================================================
 	// DATABASE
-	// ----------------------------------------------------------
+	// ========================================================
 
 	try {
 
@@ -344,30 +361,30 @@ setInterval(
 	}
 
 
-	// ----------------------------------------------------------
+	// ========================================================
 	// LOAD COMMANDS
-	// ----------------------------------------------------------
+	// ========================================================
 
 	await loadCommands();
 
 
-	// ----------------------------------------------------------
+	// ========================================================
 	// LOAD EVENTS
-	// ----------------------------------------------------------
+	// ========================================================
 
 	await loadEvents();
 
 
-	// ----------------------------------------------------------
+	// ========================================================
 	// WEB SERVER
-	// ----------------------------------------------------------
+	// ========================================================
 
 	startWebServer();
 
 
-	// ----------------------------------------------------------
-	// START BOTS
-	// ----------------------------------------------------------
+	// ========================================================
+	// START ALL BOTS
+	// ========================================================
 
 	for (
 		let i = 0;
@@ -401,14 +418,13 @@ setInterval(
 			log.error(
 				`Failed to start bot #${i + 1}: ${e.message}`
 			);
-
 		}
 	}
 
 
-	// ----------------------------------------------------------
-	// STARTUP MESSAGE
-	// ----------------------------------------------------------
+	// ========================================================
+	// SEND STARTUP MESSAGE
+	// ========================================================
 
 	await sendStartupMessage();
 
@@ -419,10 +435,7 @@ setInterval(
 // START TELEGRAM BOT
 // ============================================================
 
-async function startBot(
-	token,
-	index
-) {
+async function startBot(token, index) {
 
 	const bot =
 		new TelegramBot(token, {
@@ -440,23 +453,23 @@ async function startBot(
 		});
 
 
-	// ----------------------------------------------------------
-	// GET BOT INFORMATION
-	// ----------------------------------------------------------
+	// ========================================================
+	// BOT INFORMATION
+	// ========================================================
 
 	const me =
 		await bot.getMe();
 
-
 	if (index === 1) {
+
 		global.Sakura.botUsername =
 			me.username;
 	}
 
 
-	// ----------------------------------------------------------
+	// ========================================================
 	// HANDLER
-	// ----------------------------------------------------------
+	// ========================================================
 
 	const handlerAction =
 		createHandlerAction(bot);
@@ -499,37 +512,56 @@ async function startBot(
 
 
 	// ========================================================
-	// POLLING ERROR HANDLER
+	// POLLING ERROR
 	// ========================================================
 
 	bot.on(
 		'polling_error',
-		err => {
+		async err => {
 
-			if (
-				err?.response?.statusCode === 409
-			) {
+			const status =
+				err?.response?.statusCode;
+
+			// --------------------------------------------------
+			// Telegram 409 Conflict
+			// --------------------------------------------------
+
+			if (status === 409) {
 
 				log.error(
 					`Bot #${index} @${me.username}: polling conflict — another instance is using this token.`
 				);
 
+				/*
+				 * Stop this bot's polling.
+				 * This prevents continuous 409 error spam.
+				 */
+
+				try {
+					await bot.stopPolling();
+				} catch {}
+
 				return;
 			}
 
 
+			// --------------------------------------------------
+			// Other polling errors
+			// --------------------------------------------------
+
 			log.error(
-				`Polling error (bot #${index}): ${err.message}`
+				`Polling error (bot #${index}): ${err?.message || err}`
 			);
 		}
 	);
 
 
-	// ----------------------------------------------------------
+	// ========================================================
 	// SAVE BOT
-	// ----------------------------------------------------------
+	// ========================================================
 
 	global.Sakura.bots.push({
+
 		bot,
 
 		username:
@@ -544,9 +576,9 @@ async function startBot(
 	});
 
 
-	// ----------------------------------------------------------
-	// ONLINE LOG
-	// ----------------------------------------------------------
+	// ========================================================
+	// ONLINE
+	// ========================================================
 
 	header(
 		'SAKURA SERVER ONLINE',
@@ -557,13 +589,26 @@ async function startBot(
 		`Bot #${index} @${me.username} is online`
 	);
 
-
 	return bot;
 }
 
 
 // ============================================================
-// STARTUP MESSAGE FOR DEVELOPERS
+// HTML ESCAPE
+// ============================================================
+
+function escapeHtml(value) {
+
+	return String(value)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;');
+}
+
+
+// ============================================================
+// STARTUP MESSAGE
 // ============================================================
 
 async function sendStartupMessage() {
@@ -575,21 +620,37 @@ async function sendStartupMessage() {
 
 
 	if (!bots.length) {
+		log.warn(
+			'No active bot available for startup message.'
+		);
+
 		return;
 	}
 
 
-	// First active bot sends the message.
+	// ----------------------------------------------------------
+	// First active bot
+	// ----------------------------------------------------------
+
 	const { bot } = bots[0];
 
 
-	const {
-		devID = [],
-		timezone = 'UTC'
-	} = config;
+	// ----------------------------------------------------------
+	// Developer IDs
+	// ----------------------------------------------------------
+
+	const devID =
+		Array.isArray(config.devID)
+			? config.devID
+			: [];
 
 
-	if (!Array.isArray(devID) || !devID.length) {
+	if (!devID.length) {
+
+		log.warn(
+			'No developer IDs configured in config.json.'
+		);
+
 		return;
 	}
 
@@ -598,19 +659,37 @@ async function sendStartupMessage() {
 	// TIME
 	// ----------------------------------------------------------
 
-	const time =
-		new Date().toLocaleString(
-			'en-US',
-			{
-				timeZone: timezone,
+	let time;
 
-				hour: 'numeric',
+	try {
 
-				minute: '2-digit',
+		time =
+			new Date().toLocaleString(
+				'en-US',
+				{
+					timeZone:
+						config.timezone || 'UTC',
 
-				hour12: true
-			}
-		);
+					hour: 'numeric',
+
+					minute: '2-digit',
+
+					hour12: true
+				}
+			);
+
+	} catch {
+
+		time =
+			new Date().toLocaleTimeString(
+				'en-US',
+				{
+					hour: 'numeric',
+					minute: '2-digit',
+					hour12: true
+				}
+			);
+	}
 
 
 	// ----------------------------------------------------------
@@ -633,33 +712,47 @@ async function sendStartupMessage() {
 
 
 	// ----------------------------------------------------------
-	// STARTUP MESSAGE
+	// SAFE VALUES
 	// ----------------------------------------------------------
 
-	const text =
-		`🔔 *𝗦𝘆𝘀𝘁𝗲𝗺 𝗢𝗻𝗹𝗶𝗻𝗲:*\n` +
-		`▬▬▬▬▬▬▬▬▬▬▬▬\n\n` +
+	const safeTime =
+		escapeHtml(time);
 
-		`⏰ *Time:* ${time}\n\n` +
+	const safeDatabase =
+		escapeHtml(database);
+
+	const safeUsername =
+		escapeHtml(username);
+
+
+	// ========================================================
+	// STARTUP MESSAGE
+	// ========================================================
+
+	const text =
+		`🔔 <b>𝗦𝘆𝘀𝘁𝗲𝗺 𝗢𝗻𝗹𝗶𝗻𝗲:</b>\n` +
+		`▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n\n` +
+
+		`⏰ <b>Time:</b> ${safeTime}\n\n` +
 
 		`📌 Sakura Bot is now online and ready to handle your commands. ` +
 		`All systems are operational! 🚀✨\n\n` +
 
-		`🤖 *Bot:* ${username}\n` +
+		`🤖 <b>Bot:</b> ${safeUsername}\n` +
 
-		`🗄️ *Database:* ${database}\n` +
+		`🗄️ <b>Database:</b> ${safeDatabase}\n` +
 
-		`🔢 *Instances:* ${bots.length}\n` +
+		`🔢 <b>Instances:</b> ${bots.length}\n` +
 
-		`📡 *Status:* Operational ✅\n\n` +
+		`📡 <b>Status:</b> Operational ✅\n\n` +
 
 		`— 𝐒𝐀𝐊𝐔𝐑𝐀 𝐁𝐎𝐓\n` +
-		`▬▬▬▬▬▬▬▬▬▬▬▬`;
+		`▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
 
 
-	// ----------------------------------------------------------
+	// ========================================================
 	// SEND TO ALL DEVELOPERS
-	// ----------------------------------------------------------
+	// ========================================================
 
 	for (const id of devID) {
 
@@ -669,8 +762,12 @@ async function sendStartupMessage() {
 				id,
 				text,
 				{
-					parse_mode: 'Markdown'
+					parse_mode: 'HTML'
 				}
+			);
+
+			log.info(
+				`Startup message sent to developer ${id}.`
 			);
 
 		} catch (e) {
@@ -678,7 +775,6 @@ async function sendStartupMessage() {
 			log.warn(
 				`Startup message failed for ${id}: ${e.message}`
 			);
-
 		}
 	}
-}
+			}
