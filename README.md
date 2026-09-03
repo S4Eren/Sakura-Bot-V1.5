@@ -2,11 +2,7 @@
 
 <img src="./banner.png" alt="Sakura Bot v1.5" width="100%">
 
-<br>
-
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=30&duration=2800&pause=900&color=FF7EB6&center=true&vCenter=true&width=640&lines=SAKURA+BOT+v1.5;Telegram+Automation+Engine;Deploy+on+Render+in+minutes" alt="Sakura typing banner">
-
-<br><br>
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=20&duration=2500&pause=800&color=FF7EB6&center=true&vCenter=true&width=380&height=28&lines=SAKURA+BOT+v1.5;Telegram+Automation+Engine;Deploy+on+Render+in+minutes" alt="Sakura typing banner">
 
 <img src="https://img.shields.io/badge/VERSION-1.5.0-ff6b9d?style=for-the-badge&labelColor=1a1020">
 <img src="https://img.shields.io/badge/NODE.js-%3E%3D18.18-3c873a?style=for-the-badge&logo=nodedotjs&logoColor=white&labelColor=1a1020">
@@ -151,7 +147,7 @@ Free Render disks are ephemeral. SQLite files reset on every deploy.
 | Branch | `main` |
 | **Build Command** | `npm install` |
 | **Start Command** | `SAKURA_DASH_PORT=$PORT npm start` |
-| Instance | Paid / Starter recommended (Free spins down and the bot goes offline) |
+| Instance | Free works if you add the service to Sakura Uptime |
 
 4. **Environment → Environment Variables**
 
@@ -181,11 +177,19 @@ Native modules need compilers and Cairo. If the build errors, you can temporaril
 
 Image commands that draw with `canvas` still need Cairo on the host.
 
-### Keep the bot alive
+### Keep the bot alive (Render Free)
 
-- Render **Free** web services sleep after idle time. A sleeping service = dead Telegram bot.
-- Use a **Starter** (always-on) instance for a real 24/7 bot.
-- Optional: ping your Render URL every 5–10 minutes from an uptime monitor if you stay on Free (not reliable).
+Render Free sleeps when nobody hits the URL. Sleep = bot offline.
+
+Use **Sakura Uptime** so the dashboard URL stays warm:
+
+1. Deploy Sakura and copy your Render URL  
+   Example: `https://sakura-bot.onrender.com`
+2. Open [Sakura Uptime Monitor](http://sakura-uptime-monitor.onrender.com)
+3. **Get Started** / **Start Monitoring Free**
+4. Add that Render URL as a monitor
+
+The monitor pings the service on a schedule so Render does not spin it down.
 
 ### Local → Render checklist
 
@@ -195,7 +199,7 @@ Image commands that draw with `canvas` still need Cairo on the host.
 [ ] prefix / timezone set
 [ ] database type chosen (mongodb recommended on Render)
 [ ] Start command maps SAKURA_DASH_PORT to $PORT
-[ ] Always-on plan if you need 24/7
+[ ] Render URL added on sakura-uptime-monitor.onrender.com
 [ ] After deploy: /help works in Telegram
 ```
 
@@ -352,7 +356,7 @@ Mongo can also read `process.env.MONGODB_URI` if the config URI is empty.
 | `sqlite3` install error | Install `libsqlite3-dev` + `python3 make g++` |
 | Render deploy is live but Telegram silent | Start command must be `SAKURA_DASH_PORT=$PORT npm start` |
 | Render deploy healthy, data resets | Move to MongoDB Atlas |
-| Bot dies after some minutes on Render Free | Service slept — use an always-on plan |
+| Bot dies after some minutes on Render Free | Add your Render URL to [Sakura Uptime](http://sakura-uptime-monitor.onrender.com) |
 | Group ignored | Approve that group if `approve.enable` is on |
 
 ---
@@ -363,10 +367,8 @@ MIT © [S4Eren](https://github.com/S4Eren)
 
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=18&duration=2500&pause=1200&color=E8B4D0&center=true&vCenter=true&width=520&lines=Built+with+Sakura;Developed+by+S4Eren" alt="footer typing">
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=14&duration=2000&pause=1000&color=E8B4D0&center=true&vCenter=true&width=260&height=22&lines=Developed+by+S4Eren" alt="footer typing">
 
-<br>
-
-[github.com/S4Eren/Sakura-Bot-V1.5](https://github.com/S4Eren/Sakura-Bot-V1.5)
+https://github.com/S4Eren/Sakura-Bot-V1.5
 
 </div>
