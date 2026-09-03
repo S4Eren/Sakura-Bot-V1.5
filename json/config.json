@@ -1,0 +1,53 @@
+{
+  "timezone": "Asia/Dhaka",
+  "developer": "YOUR_NAME",
+  "prefix": "/",
+  "subprefix": ["+", "-", "#"],
+  "usePrefix": true,
+  "devID": ["YOUR_TELEGRAM_USER_ID"],
+  "premium": [],
+  "hideNotiMessage": {
+    "commandNotFound": false,
+    "needRoleToUseCmd": false,
+    "adminOnly": false,
+    "whiteList": false,
+    "onlyAdminBox": false
+  },
+  "autoRestart": null,
+  "reaction": {
+    "enable": true,
+    "success": "🔥",
+    "error": "🤔"
+  },
+  "adminOnly": {
+    "enable": false,
+    "ignoreCommand": ["help", "uid", "gid"]
+  },
+  "whiteListMode": {
+    "enable": false,
+    "whiteListIds": [],
+    "ignoreCommand": ["help", "uid", "gid"]
+  },
+  "whiteListModeThread": {
+    "enable": false,
+    "whiteListThreadIds": [],
+    "ignoreCommand": ["help", "uid", "gid"]
+  },
+  "database": {
+    "type": "sqlite",
+    "mongodbURI": ""
+  },
+  "approve": {
+    "enable": false,
+    "user": false,
+    "thread": true
+  },
+  "economy": {
+    "daily": 500,
+    "workMin": 80,
+    "workMax": 250,
+    "workCooldown": 3600000,
+    "expPerCommand": 50,
+    "expPerMessage": 20
+  }
+}

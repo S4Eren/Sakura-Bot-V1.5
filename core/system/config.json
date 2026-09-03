@@ -1,0 +1,10 @@
+{
+  "sakura": "sakura",
+  "load": "load",
+  "login": "login",
+  "dev": "dev",
+  "error": "error",
+  "warn": "warn",
+  "cmd": "commands",
+  "evnts": "events"
+}

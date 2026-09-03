@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sakura AI — Professional Dashboard. Monitor uptime, manage tokens, and explore commands." />
+  <meta name="theme-color" content="#ffd6e0" />
+  <title>Sakura AI — Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #fff1f5;
+      --surface:       #fffbfd;
+      --surface-2:     #fff0f4;
+      --surface-3:     #ffe4ec;
+      --border:        #f3c0ce;
+      --border-bright: #eba6b8;
+      --text:          #5a2d3d;
+      --text-muted:    #a05d73;
+      --text-dim:      #c48a9b;
+      --accent:        #ef7a9a;
+      --accent-strong: #e85a82;
+      --accent-dim:    rgba(239,122,154,0.16);
+      --accent-glow:   rgba(239,122,154,0.28);
+      --petal:         #ffb7c8;
+      --green:         #5ea87a;
+      --green-dim:     rgba(94,168,122,0.16);
+      --red:           #e85a6a;
+      --red-dim:       rgba(232,90,106,0.16);
+      --amber:         #d4923c;
+      --amber-dim:     rgba(212,146,60,0.16);
+      --blue:          #6b92c9;
+      --blue-dim:      rgba(107,146,201,0.16);
+      --purple:        #b87cc8;
+      --purple-dim:    rgba(184,124,200,0.16);
+      --mono:          'IBM Plex Mono', monospace;
+      --sans:          'Quicksand', sans-serif;
+      --serif:         'Playfair Display', serif;
+      --script:        'Great Vibes', cursive;
+      --radius:        16px;
+      --radius-lg:     24px;
+      --sidebar-w:     248px;
+      --transition:    220ms cubic-bezier(0.4,0,0.2,1);
+    }
+
+    html { scroll-behavior: smooth; perspective: 1600px; }
+
+    body {
+      background-color: #fff3f6;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='none'%3E%3Cpath d='M28 22c2-4 8-4 10 0 2 4-1 7-5 9 4 2 7 5 5 9-2 4-8 4-10 0-2-4 1-7 5-9-4-2-7-5-5-9z' fill='%23f4a7bb'/%3E%3Ccircle cx='34' cy='92' r='3.2' fill='%23e85a6a'/%3E%3Ccircle cx='40' cy='92' r='3.2' fill='%23e85a6a'/%3E%3Cpath d='M37 90 v-5' stroke='%237dcea0' stroke-width='1.4'/%3E%3Cpath d='M108 48c6-2 8 6 3 8 6 1 7 8 1 8-5 0-7-6-3-8-6-1-7-8-1-8z' fill='%23f4a7bb'/%3E%3Cpath d='M148 128 l6 4 6-4' stroke='%23f4a7bb' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M72 150c2-3 6-3 7 0 1 3-1 5-3.5 6.5 3 1.4 5 4 3.5 6.5-1.6 3-6 3-7.2 0-1.2-3 1-5 3.6-6.5-3-1.4-5-4-3.4-6.5z' fill='%23f7b6c8'/%3E%3Cpath d='M160 38 l3 0 2 3 -2 3 -3 0 -2-3z' fill='%23ffd6e0'/%3E%3C/g%3E%3C/svg%3E"),
+        linear-gradient(90deg, rgba(255,183,197,0.42) 50%, transparent 50%),
+        linear-gradient(rgba(255,183,197,0.42) 50%, transparent 50%);
+      background-size: 180px 180px, 28px 28px, 28px 28px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    @keyframes floaty {
+      0%,100% { transform: translateY(0) rotate(-6deg); }
+      50% { transform: translateY(-10px) rotate(6deg); }
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: .35; transform: scale(.8); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(16px) scale(.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes fadeSectionIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseDot {
+      0%,100% { box-shadow: 0 0 0 0 rgba(94,168,122,.45); }
+      50% { box-shadow: 0 0 0 6px rgba(94,168,122,0); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .float-deco {
+      position: fixed; z-index: 1; pointer-events: none;
+      font-size: 22px; animation: floaty 5.5s ease-in-out infinite;
+      filter: drop-shadow(0 4px 8px rgba(232,90,130,.18));
+    }
+    .float-deco.a { top: 12%; left: 268px; animation-delay: 0s; }
+    .float-deco.b { top: 28%; right: 6%; animation-delay: .8s; font-size: 18px; }
+    .float-deco.c { bottom: 14%; right: 10%; animation-delay: 1.4s; }
+    .float-deco.d { bottom: 22%; left: 280px; animation-delay: 2s; font-size: 16px; }
+    .spark {
+      position: fixed; z-index: 1; pointer-events: none; color: #f4a7bb;
+      animation: twinkle 2.8s ease-in-out infinite;
+    }
+    .spark.s1 { top: 18%; right: 22%; }
+    .spark.s2 { top: 62%; left: 32%; animation-delay: 1s; }
+    .spark.s3 { bottom: 18%; right: 30%; animation-delay: 1.6s; }
+
+    .app { display: grid; grid-template-columns: 1fr; min-height: 100vh; position: relative; perspective: 1400px; transform-style: preserve-3d; }
+
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: min(86vw, 280px);
+      height: 100vh;
+      transform: translateX(-105%);
+      transition: transform 260ms cubic-bezier(0.4,0,0.2,1);
+      will-change: transform;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,244,247,.9)),
+        linear-gradient(90deg, rgba(255,183,197,.22) 50%, transparent 50%),
+        linear-gradient(rgba(255,183,197,.22) 50%, transparent 50%);
+      background-size: auto, 22px 22px, 22px 22px;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow: hidden;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.85),
+        18px 0 40px rgba(232,90,130,.18),
+        10px 12px 0 rgba(243,192,206,.28);
+      border-radius: 0 24px 24px 0;
+      transform: translateX(-105%) rotateY(12deg);
+      transform-origin: left center;
+    }
+    body.sidebar-open .sidebar {
+      transform: translateX(0) rotateY(0deg);
+    }
+    body.sidebar-open .sidebar-overlay { opacity: 1; pointer-events: auto; }
+
+    .sidebar-brand {
+      padding: 22px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .brand-logo { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .brand-mark {
+      width: 54px; height: 54px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 28%, #fff, var(--petal) 46%, var(--accent));
+      box-shadow: 0 0 0 5px var(--accent-dim), 0 10px 22px var(--accent-glow);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+    .brand-name {
+      font-family: var(--script);
+      font-size: 38px;
+      color: var(--accent-strong);
+      line-height: 1;
+    }
+    .brand-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .sidebar-nav { flex: 1; padding: 14px 12px; overflow-y: auto; }
+    .nav-section { margin-bottom: 14px; }
+    .nav-section-label {
+      font-family: var(--mono); font-size: 9px; color: var(--text-dim);
+      letter-spacing: .16em; text-transform: uppercase; padding: 6px 10px 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 999px;
+      cursor: pointer; transition: all var(--transition);
+      color: var(--text-muted); user-select: none;
+      text-decoration: none;
+      margin-bottom: 4px;
+    }
+    .nav-item:hover { background: #fff; color: var(--text); transform: translateX(3px); }
+    .nav-item.active {
+      background: linear-gradient(90deg, #ff9eb8, #ef7a9a);
+      color: #fff;
+      box-shadow: 0 8px 16px var(--accent-glow);
+    }
+    .nav-item.active .nav-badge { background: rgba(255,255,255,.22); color: #fff; border-color: transparent; }
+    .nav-item .material-icons-round { font-size: 18px; flex-shrink: 0; }
+    .nav-label { font-size: 13px; font-weight: 600; }
+    .nav-badge {
+      margin-left: auto; font-family: var(--mono); font-size: 10px;
+      color: var(--accent-strong); background: #fff;
+      border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px;
+    }
+    .nav-item.api-link {
+      background: #fff;
+      border: 1px dashed var(--border-bright);
+      color: var(--accent-strong);
+      margin-top: 8px;
+    }
+    .nav-item.api-link:hover {
+      background: var(--accent-dim);
+      border-style: solid;
+      transform: translateX(3px);
+    }
+
+    .sidebar-footer { padding: 14px 16px 18px; border-top: 1px dashed var(--border); text-align: center; }
+    .footer-text { font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: .04em; }
+
+    .sidebar-overlay {
+      position: fixed; inset: 0;
+      background: rgba(255,214,224,0.5);
+      backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--transition); z-index: 90;
+    }
+
+    .sidebar-toggle, .sidebar-close {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 42px; height: 42px; border-radius: 9999px; border: none;
+      background: #fff; color: var(--accent-strong); cursor: pointer;
+      transition: all var(--transition); flex-shrink: 0;
+      box-shadow: 0 6px 16px rgba(232,90,130,.12);
+      border: 1px solid var(--border);
+    }
+    .sidebar-close { position: absolute; top: 12px; right: 12px; z-index: 2; }
+    .sidebar-toggle:hover, .sidebar-close:hover { transform: scale(1.06); background: var(--surface-3); }
+    .sidebar-toggle:focus-visible, .sidebar-close:focus-visible { box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    .hamburger { width: 22px; height: 22px; position: relative; }
+    .hamburger .line {
+      position: absolute; left: 1px; width: 20px; height: 2px;
+      background: var(--accent-strong); border-radius: 9999px;
+      transition: all 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hamburger .line:nth-child(1) { top: 5px; }
+    .hamburger .line:nth-child(2) { top: 10px; }
+    .hamburger .line:nth-child(3) { top: 15px; }
+    body.sidebar-open .hamburger .line:nth-child(1) { top: 10px; transform: rotate(45deg); }
+    body.sidebar-open .hamburger .line:nth-child(2) { opacity: 0; transform: scale(0.6); }
+    body.sidebar-open .hamburger .line:nth-child(3) { top: 10px; transform: rotate(-45deg); }
+
+    .main { margin-left: 0; min-height: 100vh; display: flex; flex-direction: column; }
+
+    .topbar {
+      position: sticky; top: 14px;
+      margin: 14px 18px 0;
+      background: rgba(255,251,253,.82); backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 14px;
+      min-height: 56px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      z-index: 50;
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 12px 24px rgba(232,90,130,.14),
+        0 4px 0 #f4c2d0;
+      animation: riseIn .45s ease both;
+      transform: translateZ(24px);
+    }
+    .topbar-left { flex-shrink: 0; }
+    .topbar-center { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; }
+    .topbar-section-title {
+      font-family: var(--serif); font-size: 22px; font-weight: 600;
+      color: var(--accent-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+
+    .connection-status {
+      display: flex; align-items: center; gap: 7px;
+      font-family: var(--mono); font-size: 10px;
+      padding: 6px 12px; border-radius: 999px;
+      background: #fff; border: 1px solid var(--border);
+    }
+    .conn-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+    .conn-dot.online { background: var(--green); animation: pulseDot 1.8s ease-in-out infinite; }
+    .conn-dot.offline { background: var(--red); }
+
+    .content {
+      flex: 1; padding: 22px 22px 40px;
+      max-width: 1600px; width: 100%; margin: 0 auto;
+      overflow-y: auto; scroll-behavior: smooth;
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+    .fade-in { animation: fadeSectionIn .35s ease forwards; }
+
+    .hero {
+      position: relative;
+      border-radius: 28px;
+      padding: 22px 24px;
+      margin-bottom: 22px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.7), rgba(255,214,224,.45)),
+        linear-gradient(90deg, rgba(255,183,197,.35) 50%, transparent 50%),
+        linear-gradient(rgba(255,183,197,.35) 50%, transparent 50%);
+      background-size: auto, 22px 22px, 22px 22px;
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 16px 32px rgba(232,90,130,.14),
+        0 8px 0 #f3c0ce;
+      animation: riseIn .55s ease both;
+      transform: rotateX(4deg);
+      transform-origin: top center;
+    }
+    .hero h2 {
+      font-family: var(--script); font-size: 42px; font-weight: 400;
+      color: var(--accent-strong); line-height: 1;
+    }
+    .hero p { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+    .hero-bow { position: absolute; right: 22px; top: 16px; font-size: 34px; animation: floaty 4.8s ease-in-out infinite; }
+
+    .section-header { margin-bottom: 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .section-title { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--text); }
+    .section-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-family: var(--mono); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px; padding: 18px 18px 16px;
+      position: relative; overflow: hidden;
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 14px 26px rgba(232,90,130,.12),
+        0 6px 0 #f3c0ce;
+      animation: riseIn .6s ease both;
+      transition: transform var(--transition), box-shadow var(--transition);
+      transform: rotateX(5deg);
+      transform-style: preserve-3d;
+    }
+    .stat-card:nth-child(1) { animation-delay: .05s; }
+    .stat-card:nth-child(2) { animation-delay: .12s; }
+    .stat-card:nth-child(3) { animation-delay: .18s; }
+    .stat-card:nth-child(4) { animation-delay: .24s; }
+    .stat-card::after {
+      content: ''; position: absolute; inset: 0 auto auto 0; width: 100%; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      background-size: 200% 100%; animation: shimmer 3.2s linear infinite;
+    }
+    .stat-card:hover {
+      transform: translateY(-10px) rotateX(8deg) rotateY(-6deg) scale(1.02);
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 22px 36px rgba(232,90,130,.2),
+        8px 14px 0 #f3c0ce;
+    }
+    .stat-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .stat-icon .material-icons-round { font-size: 18px; }
+    .stat-icon.green  { background: var(--green-dim);  color: var(--green);  }
+    .stat-icon.blue   { background: var(--blue-dim);   color: var(--blue);   }
+    .stat-icon.amber  { background: var(--amber-dim);  color: var(--amber);  }
+    .stat-icon.white  { background: var(--accent-dim); color: var(--accent); }
+    .stat-value { font-size: 26px; font-weight: 600; font-family: var(--mono); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); }
+    .stat-sub   { font-size: 10px; color: var(--text-dim); margin-top: 4px; font-family: var(--mono); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 16px 28px rgba(232,90,130,.12),
+        0 7px 0 #f3c0ce;
+      animation: riseIn .55s ease both;
+      transform: rotateX(3deg);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .card:hover {
+      transform: translateY(-8px) rotateX(6deg) rotateY(3deg);
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 24px 36px rgba(232,90,130,.18),
+        8px 12px 0 #f3c0ce;
+    }
+    .card-header {
+      padding: 14px 18px; border-bottom: 1px dashed var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      background: linear-gradient(180deg, #fff7f9, transparent);
+    }
+    .card-title {
+      font-size: 12px; font-weight: 700; color: var(--text);
+      text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title .material-icons-round { font-size: 16px; color: var(--accent); }
+    .card-body { padding: 18px; }
+
+    .token-input-wrap { position: relative; margin-bottom: 12px; }
+    .token-input {
+      width: 100%; background: #fff;
+      border: 1.5px solid var(--border); border-radius: 14px;
+      padding: 12px 44px 12px 14px; color: var(--text);
+      font-family: var(--mono); font-size: 12px; outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .token-input::placeholder { color: var(--text-dim); }
+    .token-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-dim); }
+    .token-eye {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 4px;
+    }
+    .token-eye:hover { color: var(--accent); }
+    .token-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 16px; min-height: 42px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; font-family: var(--sans);
+      cursor: pointer; border: 1px solid transparent;
+      transition: all var(--transition); letter-spacing: .03em; user-select: none;
+    }
+    .btn .material-icons-round { font-size: 14px; }
+    .btn-primary {
+      background: linear-gradient(180deg, #ff9eb8, #ef7a9a);
+      color: #fff; border-color: #f4a7bb;
+      box-shadow: 0 8px 16px var(--accent-glow), 0 5px 0 #d85a7a;
+    }
+    .btn-primary:hover { filter: brightness(1.05); transform: translateY(-3px) rotateX(8deg); }
+    .btn-danger  { background: #fff; color: var(--red); border-color: rgba(232,90,106,.3); }
+    .btn-danger:hover { background: var(--red-dim); }
+    .btn-ghost   { background: #fff; color: var(--text-muted); border-color: var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: var(--border-bright); }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn:focus-visible, input:focus-visible, select:focus-visible {
+      outline: none; box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .console {
+      background: #fff7f9; border: 1px solid var(--border);
+      border-radius: 14px; font-family: var(--mono);
+      font-size: 11px; line-height: 1.8; height: 200px;
+      overflow-y: auto; padding: 12px 14px;
+    }
+    .console-line { display: flex; gap: 10px; align-items: flex-start; opacity: 0; animation: fadeIn .2s ease forwards; }
+    .console-time { color: var(--text-dim); flex-shrink: 0; }
+    .console-tag { flex-shrink: 0; font-size: 9px; padding: 1px 5px; border-radius: 999px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+    .tag-info { background: var(--blue-dim);   color: var(--blue);  }
+    .tag-ok   { background: var(--green-dim);  color: var(--green); }
+    .tag-err  { background: var(--red-dim);    color: var(--red);   }
+    .tag-warn { background: var(--amber-dim);  color: var(--amber); }
+    .tag-sys  { background: var(--accent-dim); color: var(--accent); }
+    .console-msg { color: var(--text-muted); flex: 1; }
+
+    .token-list { display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow: auto; }
+    .token-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; background: #fff;
+      border: 1px solid var(--border); border-radius: 14px;
+      transition: transform var(--transition), border-color var(--transition);
+    }
+    .token-item:hover { border-color: var(--accent); transform: translateX(3px); }
+    .token-item-icon { width: 28px; height: 28px; background: var(--green-dim); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .token-item-icon .material-icons-round { font-size: 14px; color: var(--green); }
+    .token-item-info { flex: 1; min-width: 0; }
+    .token-item-label { font-family: var(--mono); font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .token-item-meta  { font-family: var(--mono); font-size: 9px; color: var(--text-dim); margin-top: 1px; }
+    .token-empty { text-align: center; padding: 24px; color: var(--text-dim); font-family: var(--mono); font-size: 11px; border: 1px dashed var(--border); border-radius: 14px; }
+
+    .table-toolbar {
+      padding: 14px 16px;
+      border-bottom: 1px dashed var(--border);
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      position: sticky; top: 0; z-index: 10;
+      background: #fff7f9;
+    }
+    .search-wrap { flex: 1 1 280px; min-width: 0; position: relative; }
+    .search-input {
+      width: 100%; background: #fff; border: 1.5px solid var(--border); border-radius: 999px;
+      padding: 10px 12px 10px 40px; color: var(--text); font-family: var(--mono); font-size: 12.5px;
+      outline: none; height: 42px; transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-dim); }
+    .search-input::placeholder { color: var(--text-dim); }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--accent); pointer-events: none; }
+    .search-icon .material-icons-round { font-size: 18px; }
+
+    .filter-select { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
+    .pretty-select { position: relative; flex: 1 1 160px; min-width: 0; }
+    .pretty-select-btn {
+      width: 100%;
+      min-height: 44px;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      background: #fff7f9;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+    }
+    .pretty-select-btn:hover, .pretty-select.open .pretty-select-btn {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-dim);
+    }
+    .pretty-select-btn .chev {
+      font-size: 18px; color: var(--accent-strong); transition: transform var(--transition);
+    }
+    .pretty-select.open .pretty-select-btn .chev { transform: rotate(180deg); }
+    .pretty-select-menu {
+      display: none;
+      position: absolute;
+      left: 0; right: 0; top: calc(100% + 8px);
+      z-index: 80;
+      background: #fff7f9;
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 16px 32px rgba(232,90,130,.16);
+      max-height: 280px;
+      overflow: auto;
+      padding: 6px;
+    }
+    .pretty-select.open .pretty-select-menu { display: block; animation: fadeSectionIn .18s ease; }
+    .pretty-option {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; border: none; background: transparent;
+      color: var(--text); font-family: var(--sans); font-size: 14px; font-weight: 600;
+      padding: 12px 12px; border-radius: 12px; cursor: pointer; text-align: left;
+    }
+    .pretty-option + .pretty-option { border-top: 1px dashed rgba(243,192,206,.7); border-radius: 0; }
+    .pretty-option:hover { background: #ffe4ec; }
+    .pretty-option.active { color: var(--accent-strong); background: var(--accent-dim); border-radius: 12px; }
+    .pretty-option .dot {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid var(--border-bright); flex-shrink: 0;
+    }
+    .pretty-option.active .dot {
+      border-color: var(--accent-strong);
+      background: radial-gradient(circle, var(--accent-strong) 45%, transparent 48%);
+    }
+    @media (max-width: 700px) {
+      .pretty-select-menu {
+        position: fixed;
+        left: 12px; right: 12px; top: auto; bottom: 12px;
+        max-height: 55vh;
+        border-radius: 22px;
+      }
+    }
+
+    .cmd-count { font-family: var(--mono); font-size: 10px; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; }
+
+    .cmd-list { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 12px; }
+    @media (min-width: 900px) {
+      .cmd-list { grid-template-columns: 1fr 1fr; }
+    }
+    .cmd-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 8px;
+      min-width: 0;
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 10px 18px rgba(232,90,130,.1),
+        0 5px 0 #f3c0ce;
+      transform: rotateX(3deg);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .cmd-card:hover {
+      transform: translateY(-6px) rotateX(6deg) rotateY(-3deg);
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 18px 26px rgba(232,90,130,.16),
+        6px 10px 0 #f3c0ce;
+    }
+    .cmd-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .cmd-card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .cmd-file {
+      font-family: var(--mono); font-size: 10px; color: var(--accent-strong);
+      background: #fff0f4; border: 1px dashed var(--border); border-radius: 999px;
+      padding: 5px 10px; overflow-wrap: anywhere;
+    }
+    .cmd-guide { font-family: var(--mono); font-size: 11px; color: var(--text-dim); overflow-wrap: anywhere; }
+    .cmd-name { font-family: var(--mono); font-size: 14px; color: var(--text); font-weight: 600; }
+    .cmd-prefix { color: var(--accent); }
+    .cmd-aliases { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-top: 2px; overflow-wrap: anywhere; }
+    .cmd-desc { font-size: 13px; color: var(--text-muted); overflow-wrap: anywhere; line-height: 1.45; }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-family: var(--mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+    .badge-anyone    { background: var(--blue-dim);   color: var(--blue);       border: 1px solid rgba(107,146,201,.25); }
+    .badge-premium   { background: var(--amber-dim);  color: var(--amber);      border: 1px solid rgba(212,146,60,.25); }
+    .badge-developer { background: var(--red-dim);    color: var(--red);        border: 1px solid rgba(232,90,106,.25); }
+    .badge-group     { background: var(--green-dim);  color: var(--green);      border: 1px solid rgba(94,168,122,.25); }
+    .badge-hidden    { background: var(--accent-dim); color: var(--text-dim);   border: 1px solid var(--border); }
+    .badge-private   { background: var(--purple-dim); color: var(--purple);     border: 1px solid rgba(184,124,200,.25); }
+    .badge-system    { background: var(--accent-dim); color: var(--text-muted); border: 1px solid var(--border); }
+    .cat-badge { display: inline-flex; padding: 2px 8px; border-radius: 999px; background: #fff0f4; border: 1px solid var(--border); font-family: var(--mono); font-size: 9px; color: var(--accent-strong); text-transform: uppercase; }
+    .cmd-ver { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+
+    .events-list { display: flex; flex-direction: column; max-height: 680px; overflow: auto; }
+    .event-item { padding: 14px 18px; border-bottom: 1px dashed var(--border); display: flex; align-items: center; gap: 16px; transition: background var(--transition), transform var(--transition); }
+    .event-item:hover { background: #fff0f4; transform: translateX(4px); }
+    .event-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .event-name { font-family: var(--mono); font-size: 12px; color: var(--text); font-weight: 600; }
+    .event-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .event-trigger { margin-left: auto; font-family: var(--mono); font-size: 9px; color: var(--text-dim); text-align: right; }
+
+    .uptime-bar-row { display: flex; gap: 3px; align-items: flex-end; height: 44px; margin-bottom: 8px; }
+    .uptime-bar-seg { flex: 1; background: linear-gradient(180deg, var(--petal), var(--accent-strong)); border-radius: 6px 6px 2px 2px; opacity: .85; transition: opacity var(--transition), transform var(--transition); }
+    .uptime-bar-seg:hover { opacity: 1; transform: scaleY(1.08); }
+    .uptime-bar-seg.down { background: var(--red); opacity: .5; }
+    .uptime-labels { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 9px; color: var(--text-dim); }
+
+    .activity-list { display: flex; flex-direction: column; }
+    .activity-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+    .activity-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .activity-text { font-size: 12px; color: var(--text-muted); flex: 1; }
+    .activity-text strong { color: var(--text); font-weight: 700; }
+    .activity-time { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+
+    .cat-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed rgba(243,192,206,.6); }
+    .cat-row:last-child { border-bottom: none; }
+    .cat-name  { font-family: var(--mono); font-size: 11px; color: var(--text-muted); width: 90px; flex-shrink: 0; }
+    .cat-bar-wrap { flex: 1; background: var(--surface-3); border-radius: 999px; height: 6px; overflow: hidden; }
+    .cat-bar   { height: 100%; background: var(--accent); border-radius: 999px; transition: width .6s ease; }
+    .cat-count { font-family: var(--mono); font-size: 10px; color: var(--text-dim); width: 24px; text-align: right; }
+
+    .divider { height: 1px; background: var(--border); margin: 24px 0; }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+    .empty-state .material-icons-round { font-size: 32px; margin-bottom: 12px; display: block; }
+    .empty-state p { font-family: var(--mono); font-size: 12px; }
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+
+    .info-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px dashed rgba(243,192,206,.6); }
+    .info-row:last-child { border-bottom: none; }
+    .info-key { font-size: 12px; color: var(--text-muted); }
+    .info-val { font-family: var(--mono); font-size: 11px; color: var(--text); }
+
+    .maintenance-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-family: var(--mono); font-size: 10px; }
+    .maintenance-on  { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(212,146,60,.25); }
+    .maintenance-off { background: var(--green-dim); color: var(--green); border: 1px solid rgba(94,168,122,.25); }
+
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .content { padding: 14px 12px 28px; }
+      .cmd-list { padding: 10px; }
+      .float-deco, .spark { display: none; }
+      .topbar { margin: 8px 10px 0; min-height: 48px; padding: 6px 10px; }
+      .topbar-section-title { font-size: 18px; }
+      .table-toolbar { padding: 12px; gap: 8px; }
+      .pretty-select { flex: 1 1 calc(50% - 8px); }
+    }
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .hero { padding: 16px; border-radius: 20px; }
+      .hero h2 { font-size: 30px; }
+      .token-actions { grid-template-columns: 1fr; }
+      .btn { width: 100%; min-height: 46px; }
+      .cmd-list { grid-template-columns: 1fr; }
+      .event-trigger { display: none; }
+      .pretty-select { flex: 1 1 100%; }
+      .search-wrap { flex: 1 1 100%; }
+      .cmd-count { width: 100%; text-align: right; }
+      .section-title { font-size: 22px; }
+      .stat-card, .card, .cmd-card, .hero { transform: none; }
+      .stat-card:hover, .card:hover, .cmd-card:hover { transform: translateY(-4px) scale(1.01); }
+    }
+  </style>
+</head>
+<body>
+<span class="float-deco a">🎀</span>
+<span class="float-deco b">🍒</span>
+<span class="float-deco c">🎀</span>
+<span class="float-deco d">🍒</span>
+<span class="spark s1">✦</span>
+<span class="spark s2">✦</span>
+<span class="spark s3">✦</span>
+
+<div class="app">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-close" id="sidebar-close" aria-label="Close navigation" title="Close navigation">
+      <span class="material-icons-round">close</span>
+    </div>
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <div class="brand-mark" aria-hidden="true">🎀</div>
+        <div class="brand-name">Sakura</div>
+        <div class="brand-tag">by S4Eren</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <div class="nav-item active" data-section="dashboard">
+          <span class="material-icons-round">dashboard</span>
+          <span class="nav-label">Dashboard</span>
+        </div>
+        <div class="nav-item" data-section="tokens">
+          <span class="material-icons-round">vpn_key</span>
+          <span class="nav-label">Token Manager</span>
+        </div>
+        <div class="nav-item" data-section="config">
+          <span class="material-icons-round">tune</span>
+          <span class="nav-label">Configuration</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Registry</div>
+        <div class="nav-item" data-section="commands">
+          <span class="material-icons-round">terminal</span>
+          <span class="nav-label">Commands</span>
+          <span class="nav-badge" id="cmd-nav-count">—</span>
+        </div>
+        <div class="nav-item" data-section="events">
+          <span class="material-icons-round">bolt</span>
+          <span class="nav-label">Events</span>
+          <span class="nav-badge" id="evt-nav-count">—</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Links</div>
+        <a class="nav-item api-link" id="nav-sakura-api" href="https://sakura-apis.onrender.com/docs2" target="_blank" rel="noopener noreferrer">
+          <span class="material-icons-round">auto_awesome</span>
+          <span class="nav-label">Sakura API</span>
+          <span class="material-icons-round" style="margin-left:auto;font-size:16px">open_in_new</span>
+        </a>
+        <a class="nav-item api-link" id="nav-sakura-bin" href="https://sakura-bin1.vercel.app" target="_blank" rel="noopener noreferrer">
+          <span class="material-icons-round">inventory_2</span>
+          <span class="nav-label">Sakura Bin</span>
+          <span class="material-icons-round" style="margin-left:auto;font-size:16px">open_in_new</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="footer-text">© 2026 Sakura AI — S4Eren</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open navigation" title="Open navigation">
+          <div class="hamburger">
+            <span class="line"></span>
+            <span class="line"></span>
+            <span class="line"></span>
+          </div>
+        </button>
+      </div>
+      <div class="topbar-center">
+        <div class="topbar-section-title" id="topbar-section-title">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="connection-status">
+          <div class="conn-dot" id="conn-dot"></div>
+          <span id="conn-label" style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">Connecting</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="section active fade-in" id="section-dashboard">
+        <div class="hero">
+          <div class="hero-bow">🎀</div>
+          <h2>Welcome back</h2>
+          <p>Sakura control room · live metrics · S4Eren</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon green"><span class="material-icons-round">schedule</span></div>
+            <div class="stat-value" id="stat-uptime">—</div>
+            <div class="stat-label">Uptime</div>
+            <div class="stat-sub" id="stat-uptime-since">Waiting for server...</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><span class="material-icons-round">smart_toy</span></div>
+            <div class="stat-value" id="stat-bots">—</div>
+            <div class="stat-label">Active Bots</div>
+            <div class="stat-sub" id="stat-bots-sub">Tokens registered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon amber"><span class="material-icons-round">terminal</span></div>
+            <div class="stat-value" id="stat-commands">—</div>
+            <div class="stat-label">Total Commands</div>
+            <div class="stat-sub">Across all categories</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon white"><span class="material-icons-round">bolt</span></div>
+            <div class="stat-value" id="stat-events">—</div>
+            <div class="stat-label">Loaded Event Files</div>
+            <div class="stat-sub">From scripts/events</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="material-icons-round">bar_chart</span>Uptime History — Live Session</div>
+              <span style="font-family:var(--mono);font-size:10px;color:var(--green)" id="uptime-history-note">Live</span>
+            </div>
+            <div class="card-body">
+              <div class="uptime-bar-row" id="uptime-bars"></div>
+              <div class="uptime-labels"><span>30 days ago</span><span>Today</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="material-icons-round">history</span>System Activity</div>
+            </div>
+            <div class="card-body">
+              <div class="activity-list" id="activity-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="material-icons-round">trending_up</span>Top Commands by Category</div>
+            </div>
+            <div class="card-body" style="padding: 16px 20px;">
+              <div id="cat-bars-container"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="material-icons-round">info</span>System Information</div>
+            </div>
+            <div class="card-body">
+              <div id="sysinfo-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="bot-instances-card" style="margin-bottom:24px;display:none">
+          <div class="card-header">
+            <div class="card-title"><span class="material-icons-round">dns</span>Active Bot Instances</div>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted)" id="bot-instances-count">0 running</span>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div id="bot-instances-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-in" id="section-tokens">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Token Manager</div>
+            <div class="section-subtitle">Register and remove bot tokens from json/tokens.json</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="material-icons-round">vpn_key</span>Token Operations</div>
+            </div>
+            <div class="card-body">
+              <div style="margin-bottom:16px">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;font-family:var(--mono)">
+                  Enter a Telegram bot token to register it or revoke it. Changes are written to <code style="color:var(--accent)">json/tokens.json</code>.
+                </div>
+                <div class="token-input-wrap">
+                  <input type="password" class="token-input" id="token-input"
+                    placeholder="1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZabcd..."
+                    autocomplete="off" spellcheck="false" />
+                  <button class="token-eye" id="token-eye-btn" title="Toggle visibility">
+                    <span class="material-icons-round" id="token-eye-icon">visibility_off</span>
+                  </button>
+                </div>
+                <div class="token-actions">
+                  <button class="btn btn-primary" id="btn-register">
+                    <span class="material-icons-round">playlist_add_check</span>
+                    Register Token
+                  </button>
+                  <button class="btn btn-danger" id="btn-deregister">
+                    <span class="material-icons-round">remove_circle_outline</span>
+                    Revoke Token
+                  </button>
+                </div>
+              </div>
+              <div class="divider" style="margin:16px 0"></div>
+              <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+                <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em">Console Output</div>
+                <button class="btn btn-ghost" id="btn-clear-console" style="padding:4px 10px;font-size:10px">
+                  <span class="material-icons-round" style="font-size:12px">delete_sweep</span>Clear
+                </button>
+              </div>
+              <div class="console" id="console-output"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="material-icons-round">list</span>Registered Tokens</div>
+              <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted)" id="token-count-label">— active</span>
+            </div>
+            <div class="card-body">
+              <div class="token-list" id="token-list">
+                <div class="token-empty">
+                  <span class="material-icons-round" style="font-size:24px;display:block;margin-bottom:8px;color:var(--text-dim)">smart_toy</span>
+                  Loading tokens...
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-in" id="section-config">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Configuration</div>
+            <div class="section-subtitle">Live view of json/config.json runtime values</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="material-icons-round">settings</span>Bot Settings</div>
+            </div>
+            <div class="card-body"><div id="config-bot-settings"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="material-icons-round">security</span>Access Control</div>
+            </div>
+            <div class="card-body"><div id="config-access-control"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-in" id="section-commands">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Commands</div>
+            <div class="section-subtitle">Complete registry of all loaded bot commands</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-toolbar">
+            <div class="search-wrap">
+              <div class="search-icon"><span class="material-icons-round">search</span></div>
+              <input type="text" class="search-input" id="cmd-search" placeholder="Search commands, aliases, descriptions..." />
+            </div>
+            <div class="pretty-select" data-select="cmd-filter-cat">
+              <button type="button" class="pretty-select-btn" aria-haspopup="listbox">
+                <span class="pretty-select-label">All Categories</span>
+                <span class="material-icons-round chev">expand_more</span>
+              </button>
+              <div class="pretty-select-menu" role="listbox"></div>
+              <select class="filter-select" id="cmd-filter-cat">
+                <option value="">All Categories</option>
+              </select>
+            </div>
+            <div class="pretty-select" data-select="cmd-filter-type">
+              <button type="button" class="pretty-select-btn" aria-haspopup="listbox">
+                <span class="pretty-select-label">All Types</span>
+                <span class="material-icons-round chev">expand_more</span>
+              </button>
+              <div class="pretty-select-menu" role="listbox"></div>
+              <select class="filter-select" id="cmd-filter-type">
+                <option value="">All Types</option>
+                <option value="anyone">Anyone</option>
+                <option value="premium">Premium</option>
+                <option value="developer">Developer</option>
+                <option value="group">Group</option>
+                <option value="private">Private</option>
+                <option value="hidden">Hidden</option>
+              </select>
+            </div>
+            <span class="cmd-count" id="cmd-result-count">— commands</span>
+          </div>
+          <div class="cmd-list" id="cmd-table-body"></div>
+        </div>
+      </section>
+
+      <section class="section fade-in" id="section-events">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Events</div>
+            <div class="section-subtitle">Loaded event files from scripts/events</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-toolbar">
+            <div class="search-wrap">
+              <div class="search-icon"><span class="material-icons-round">search</span></div>
+              <input type="text" class="search-input" id="evt-search" placeholder="Search events..." />
+            </div>
+            <span class="cmd-count" id="evt-result-count">— event types</span>
+          </div>
+          <div class="events-list" id="events-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── CONFIG ─────────────────────────────────────────────────────────────────
+const API = '';
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+const state = {
+  commands:    [],
+  events:      [],
+  tokens:      [],
+  status:      null,
+  startTime:   null,
+  connected:   false,
+};
+
+// Scroll + section persistence
+const scrollPositions = {};
+const contentEl = document.querySelector('.content');
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────
+const navItems  = document.querySelectorAll('.nav-item[data-section]');
+const sections  = document.querySelectorAll('.section');
+const labels    = { dashboard:'Dashboard', tokens:'Token Manager', config:'Configuration', commands:'Commands', events:'Events' };
+const sidebar   = document.getElementById('sidebar');
+const overlay   = document.getElementById('sidebar-overlay');
+const btnOpen   = document.getElementById('sidebar-toggle');
+const btnClose  = document.getElementById('sidebar-close');
+
+function setSidebar(open) {
+  document.body.classList.toggle('sidebar-open', open);
+}
+
+function navigate(id) {
+  const activeSection = document.querySelector('.section.active');
+  if (activeSection) scrollPositions[activeSection.id] = contentEl.scrollTop;
+
+  navItems.forEach(el => el.classList.toggle('active', el.dataset.section === id));
+  sections.forEach(el => {
+    const isActive = el.id === `section-${id}`;
+    el.classList.toggle('active', isActive);
+    if (isActive) {
+      el.classList.remove('fade-in');
+      void el.offsetWidth;
+      el.classList.add('fade-in');
+    }
+  });
+
+  document.getElementById('topbar-section-title').textContent = labels[id] || id;
+
+  const targetSection = document.getElementById(`section-${id}`);
+  if (targetSection && scrollPositions[`section-${id}`] !== undefined) {
+    contentEl.scrollTop = scrollPositions[`section-${id}`];
+  } else {
+    contentEl.scrollTop = 0;
+  }
+
+  localStorage.setItem('sakura-ai-current-section', id);
+  setSidebar(false);
+}
+
+navItems.forEach(el => el.addEventListener('click', () => navigate(el.dataset.section)));
+btnOpen.addEventListener('click', () => setSidebar(!document.body.classList.contains('sidebar-open')));
+btnClose.addEventListener('click', () => setSidebar(false));
+overlay.addEventListener('click', () => setSidebar(false));
+window.addEventListener('keydown', (e) => { if (e.key === 'Escape') setSidebar(false); });
+document.getElementById('nav-sakura-api')?.addEventListener('click', () => setSidebar(false));
+document.getElementById('nav-sakura-bin')?.addEventListener('click', () => setSidebar(false));
+setSidebar(false);
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function fmt(ms) {
+  const s = Math.floor(ms / 1000);
+  const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600),
+        m = Math.floor((s % 3600) / 60), sec = s % 60;
+  if (d > 0) return `${d}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+function typeBadge(type) {
+  const map = { anyone:'badge-anyone', premium:'badge-premium', developer:'badge-developer',
+                group:'badge-group', hidden:'badge-hidden', private:'badge-private', system:'badge-system' };
+  return `<span class="badge ${map[type] || 'badge-anyone'}">${type}</span>`;
+}
+
+function maskToken(token) {
+  const parts = token.split(':');
+  if (parts.length !== 2) return token.slice(0,8) + '••••••••••••';
+  return parts[0] + ':' + parts[1].slice(0,6) + '••••••••••••••';
+}
+
+function validateToken(token) {
+  token = token.trim();
+  if (!token) return { valid:false, reason:'Token is empty.' };
+  const parts = token.split(':');
+  if (parts.length !== 2)         return { valid:false, reason:'Invalid format. Expected: <id>:<hash>' };
+  if (!/^\d+$/.test(parts[0]))    return { valid:false, reason:'Bot ID must be numeric.' };
+  if (parts[1].length < 20)       return { valid:false, reason:'Token hash appears too short.' };
+  return { valid:true };
+}
+
+// ── CONSOLE ──
+function clog(tag, msg) {
+  const container = document.getElementById('console-output');
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-US', { hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const line = document.createElement('div');
+  line.className = 'console-line';
+  const tagClass = { INFO:'tag-info', OK:'tag-ok', ERR:'tag-err', WARN:'tag-warn', SYS:'tag-sys' }[tag] || 'tag-sys';
+  line.innerHTML = `<span class="console-time">${time}</span><span class="console-tag ${tagClass}">${tag}</span><span class="console-msg">${msg}</span>`;
+  container.appendChild(line);
+  container.scrollTop = container.scrollHeight;
+}
+
+document.getElementById('btn-clear-console').addEventListener('click', () => {
+  document.getElementById('console-output').innerHTML = '';
+});
+
+// ── CONNECTION STATUS ──────────────────────────────────────────────────────
+function setConnected(online) {
+  state.connected = online;
+  const dot = document.getElementById('conn-dot');
+  const lbl = document.getElementById('conn-label');
+  dot.className = 'conn-dot ' + (online ? 'online' : 'offline');
+  lbl.textContent = online ? 'Live' : 'Offline';
+}
+
+// ── API FETCH ──────────────────────────────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+// ── UPTIME CLOCK ───────────────────────────────────────────────────────────
+function tickUptime() {
+  if (!state.startTime) return;
+  const elapsed = Date.now() - state.startTime;
+  document.getElementById('stat-uptime').textContent = fmt(elapsed);
+  const d = new Date(state.startTime);
+  document.getElementById('stat-uptime-since').textContent =
+    `Since ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})} ${d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}`;
+}
+setInterval(tickUptime, 1000);
+
+// ── UPTIME HISTORY ─────────────────────────────────────────────────────────
+function renderUptimeHistory(history = []) {
+  const c = document.getElementById('uptime-bars');
+  if (!c) return;
+  c.innerHTML = '';
+
+  const points = history.slice(-30);
+  const latest = (points.length ? points[points.length - 1].uptime : (state.startTime ? Date.now() - state.startTime : 0));
+  const source = points.length >= 30 ? points : Array.from({ length: 30 }, (_, i) => ({
+    ts: Date.now() - (29 - i) * 1000,
+    uptime: Math.round(latest * (i + 1) / 30),
+  }));
+  const maxUptime = Math.max(...source.map(p => p.uptime || 0), 1);
+
+  source.forEach((p) => {
+    const seg = document.createElement('div');
+    seg.className = 'uptime-bar-seg';
+    const height = Math.max(8, Math.round(((p.uptime || 0) / maxUptime) * 40));
+    seg.style.height = height + 'px';
+    seg.title = `${fmt(p.uptime || 0)} · ${new Date(p.ts || Date.now()).toLocaleString()}`;
+    c.appendChild(seg);
+  });
+}
+
+// ── RENDER STATUS ──────────────────────────────────────────────────────────
+function renderStatus(s) {
+  state.status    = s;
+  state.startTime = s.startTime;
+
+  document.getElementById('stat-bots').textContent     = s.botCount;
+  document.getElementById('stat-commands').textContent = s.commandCount;
+  document.getElementById('stat-events').textContent = s.eventCount ?? '—';
+  document.getElementById('stat-bots-sub').textContent =
+    s.botCount === 0 ? 'No tokens registered' : `${s.botCount} bot${s.botCount>1?'s':''} running`;
+
+  renderUptimeHistory(s.uptimeHistory || []);
+  const uptimeNote = document.getElementById('uptime-history-note');
+  if (uptimeNote) uptimeNote.textContent = `${(s.uptimeHistory || []).length} samples`;
+
+  if (s.bots && s.bots.length > 0) {
+    const card = document.getElementById('bot-instances-card');
+    card.style.display = '';
+    document.getElementById('bot-instances-count').textContent = `${s.bots.length} running`;
+    const list = document.getElementById('bot-instances-list');
+    list.innerHTML = s.bots.map((b, i) => {
+      const photoSrc = b.userId ? `/api/bot-photo?id=${b.userId}` : '';
+      const avatarHtml = photoSrc
+        ? `<img src="${photoSrc}" alt="@${b.username}"
+               style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);flex-shrink:0"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            />
+           <div style="display:none;width:36px;height:36px;background:var(--accent-dim);border-radius:50%;align-items:center;justify-content:center;flex-shrink:0">
+             <span class='material-icons-round' style='font-size:16px;color:var(--accent)'>smart_toy</span>
+           </div>`
+        : `<div style="width:36px;height:36px;background:var(--accent-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+             <span class='material-icons-round' style='font-size:16px;color:var(--accent)'>smart_toy</span>
+           </div>`;
+      return `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid rgba(44,32,38,0.7)">
+        ${avatarHtml}
+        <div>
+          <div style="font-family:var(--mono);font-size:12px;color:var(--text)">@${b.username || 'unknown'}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim)">Instance #${b.index}</div>
+        </div>
+        <div style="margin-left:auto"><span class="badge badge-anyone">ONLINE</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  const si = document.getElementById('sysinfo-list');
+  si.innerHTML = [
+    { key:'Runtime',           val:'Node.js ESM' },
+    { key:'Platform',          val:'Telegram Bot API' },
+    { key:'Prefix',            val:`${s.prefix} ${(s.subprefix||[]).join(' ')}`.trim() },
+    { key:'Timezone',          val:s.timezone || 'UTC' },
+    { key:'Developer',         val:s.developer || 'S4Eren' },
+    { key:'Multi-bot Support', val:'Enabled', dot:'green' },
+  ].map(r => `
+    <div class="info-row">
+      <div style="display:flex;align-items:center;gap:8px" class="info-key">
+        ${r.dot ? `<div class="activity-dot" style="background:var(--${r.dot})"></div>` : '<div style="width:6px;height:6px;border-radius:50%;background:var(--text-dim);flex-shrink:0"></div>'}
+        <strong style="color:var(--text)">${r.key}</strong>
+      </div>
+      <div class="info-val">${r.val}</div>
+    </div>
+  `).join('');
+}
+
+// ── RENDER COMMANDS ────────────────────────────────────────────────────────
+function renderCommands(commands) {
+  state.commands = commands;
+  document.getElementById('stat-commands').textContent = commands.length;
+  document.getElementById('cmd-nav-count').textContent = commands.length;
+
+  const cats = [...new Set(commands.map(c => c.category).filter(Boolean))].sort();
+  const catSel = document.getElementById('cmd-filter-cat');
+  catSel.innerHTML = '<option value="">All Categories</option>' +
+    cats.map(c => `<option value="${c}">${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('');
+  if (typeof refreshPrettySelect === 'function') refreshPrettySelect('cmd-filter-cat');
+
+  buildCommandsTable();
+  buildCatBars(commands);
+  buildActivity(commands);
+}
+
+function buildCommandsTable(filter = '', catFilter = '', typeFilter = '') {
+  const body = document.getElementById('cmd-table-body');
+  body.innerHTML = '';
+  const q = filter.toLowerCase();
+  const filtered = state.commands.filter(c => {
+    const file = (c.file || `scripts/cmds/${c.category || 'system'}/${c.name}.js`).toLowerCase();
+    const matchQ   = !q || c.name.includes(q) || (c.description||'').toLowerCase().includes(q) || (c.aliases||[]).some(a=>a.includes(q)) || (c.category||'').includes(q) || file.includes(q);
+    const matchCat = !catFilter  || c.category === catFilter;
+    const matchTyp = !typeFilter || c.type === typeFilter;
+    return matchQ && matchCat && matchTyp;
+  });
+
+  if (!filtered.length) {
+    body.innerHTML = `<div class="empty-state"><span class="material-icons-round">search_off</span><p>No commands match your filters.</p></div>`;
+  } else {
+    const prefix = state.status?.prefix || '/';
+    filtered.forEach(c => {
+      const guideStr = (c.guide||[]).join('  ');
+      const cat = c.category || 'system';
+      const file = c.file || `scripts/cmds/${cat}/${c.name}.js`;
+      const card = document.createElement('article');
+      card.className = 'cmd-card';
+      card.innerHTML = `
+        <div class="cmd-card-top">
+          <div>
+            <div class="cmd-name"><span class="cmd-prefix">${prefix}</span>${c.name}</div>
+            ${(c.aliases||[]).length ? `<div class="cmd-aliases">${c.aliases.map(a=>`${prefix}${a}`).join(', ')}</div>` : ''}
+          </div>
+          <span class="cmd-ver">v${c.version||'1.0.0'}</span>
+        </div>
+        <div class="cmd-desc">${c.description||'No description'}</div>
+        <div class="cmd-card-meta">
+          <span class="cat-badge">${cat.toUpperCase()}</span>
+          ${typeBadge(c.type||'anyone')}
+        </div>
+        <div class="cmd-file">${file}</div>
+        ${guideStr ? `<div class="cmd-guide">Usage: ${guideStr}</div>` : ''}
+      `;
+      body.appendChild(card);
+    });
+  }
+  document.getElementById('cmd-result-count').textContent = `${filtered.length} command${filtered.length!==1?'s':''}`;
+}
+
+function buildCatBars(commands) {
+  const catMap = {};
+  commands.forEach(c => { const cat = c.category || 'system'; catMap[cat] = (catMap[cat] || 0) + 1; });
+  const sorted = Object.entries(catMap).sort((a,b) => b[1]-a[1]);
+  const maxVal = sorted[0]?.[1] || 1;
+  const colors = ['var(--accent)','var(--green)','var(--amber)','var(--purple)','var(--blue)'];
+  const container = document.getElementById('cat-bars-container');
+  container.innerHTML = sorted.map(([cat, count], i) => `
+    <div class="cat-row">
+      <div class="cat-name">${cat.toUpperCase()}</div>
+      <div class="cat-bar-wrap"><div class="cat-bar" style="width:${Math.round(count/maxVal*100)}%;background:${colors[i%colors.length]}"></div></div>
+      <div class="cat-count">${count}</div>
+    </div>
+  `).join('');
+}
+
+function buildActivity(commands) {
+  const total = commands.length;
+  const cats  = [...new Set(commands.map(c=>c.category))].length;
+  const bots  = state.status?.botCount || 0;
+  const items = [
+    { text:`<strong>Sakura AI Engine</strong> — Core initialized`, color:'var(--green)', time:'Just now' },
+    { text:`<strong>${total} commands</strong> loaded into registry`, color:'var(--accent)', time:'Boot' },
+    { text:`<strong>${cats} categories</strong> discovered`, color:'var(--blue)', time:'Boot' },
+    { text:`<strong>${bots} bot instance${bots!==1?'s':''}</strong> active`, color: bots>0?'var(--green)':'var(--text-dim)', time:'Boot' },
+  ];
+  const c = document.getElementById('activity-list');
+  c.innerHTML = items.map(item => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${item.color}"></div>
+      <div class="activity-text">${item.text}</div>
+      <div class="activity-time">${item.time}</div>
+    </div>
+  `).join('');
+}
+
+// ── RENDER EVENTS ──────────────────────────────────────────────────────────
+function renderEvents(events) {
+  state.events = events;
+  document.getElementById('evt-nav-count').textContent = events.length;
+  document.getElementById('stat-events').textContent = events.length;
+  buildEventsList();
+}
+
+function buildEventsList(filter = '') {
+  const container = document.getElementById('events-list');
+  container.innerHTML = '';
+  const q = filter.toLowerCase();
+  const colorMap = { green: { bg:'var(--green-dim)', color:'var(--green)' }, blue: { bg:'var(--blue-dim)', color:'var(--blue)' }, amber: { bg:'var(--amber-dim)', color:'var(--amber)' }, white: { bg:'var(--accent-dim)',color:'var(--accent)' }};
+  const filtered = state.events.filter(e => !q || e.name.toLowerCase().includes(q) || (e.description || e.desc || '').toLowerCase().includes(q) || (e.file || '').toLowerCase().includes(q));
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state"><span class="material-icons-round">search_off</span><p>No events match your search.</p></div>`;
+  } else {
+    filtered.forEach(evt => {
+      const c = colorMap[evt.color] || colorMap.green;
+      const el = document.createElement('div');
+      el.className = 'event-item';
+      el.innerHTML = `
+        <div class="event-icon" style="background:${c.bg}"><span class="material-icons-round" style="color:${c.color}">${evt.icon || 'event'}</span></div>
+        <div>
+          <div class="event-name">${evt.name}</div>
+          <div class="event-desc">${evt.description || evt.desc}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:4px">${evt.file ? `File: ${evt.file}` : ''}</div>
+        </div>
+        <div class="event-trigger">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Source</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">${evt.scope || 'scripts/events'}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:2px">${evt.trigger || evt.author || 'S4Eren'}</div>
+        </div>
+      `;
+      container.appendChild(el);
+    });
+  }
+  document.getElementById('evt-result-count').textContent = `${filtered.length} event type${filtered.length!==1?'s':''}`;
+}
+
+// ── RENDER TOKENS ──────────────────────────────────────────────────────────
+function renderTokens(tokens) {
+  state.tokens = tokens;
+  const container  = document.getElementById('token-list');
+  const countLabel = document.getElementById('token-count-label');
+  const statBots   = document.getElementById('stat-bots');
+
+  const liveCount = tokens.filter(t => t.live).length;
+  countLabel.textContent = `${tokens.length} registered · ${liveCount} online`;
+  statBots.textContent   = tokens.length;
+
+  if (!tokens.length) {
+    container.innerHTML = `<div class="token-empty"><span class="material-icons-round" style="font-size:24px;display:block;margin-bottom:8px;color:var(--text-dim)">smart_toy</span>No tokens registered yet.<br/>Register a token to populate the registry.</div>`;
+    return;
+  }
+  container.innerHTML = '';
+  tokens.forEach((t, i) => {
+    const item = document.createElement('div');
+    item.className = 'token-item';
+    const statusLabel = t.live
+      ? `🟢 Online${t.username ? ' · @' + t.username : ''}`
+      : '⭕ Not running';
+    const photoSrc = (t.live && t.userId) ? `/api/bot-photo?id=${t.userId}` : '';
+    const avatarHtml = photoSrc
+      ? `<img src="${photoSrc}" alt="@${t.username}"
+             style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green);flex-shrink:0"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+          />
+         <div style="display:none;width:28px;height:28px;background:var(--green-dim);border-radius:50%;align-items:center;justify-content:center;flex-shrink:0">
+           <span class='material-icons-round' style='font-size:13px;color:var(--green)'>smart_toy</span>
+         </div>`
+      : `<div class="token-item-icon" style="background:${t.live ? 'var(--green-dim)' : 'var(--surface-3)'}">
+           <span class="material-icons-round" style="color:${t.live ? 'var(--green)' : 'var(--text-dim)'}">smart_toy</span>
+         </div>`;
+    item.innerHTML = `
+      ${avatarHtml}
+      <div class="token-item-info">
+        <div class="token-item-label">${t.masked}</div>
+        <div class="token-item-meta">Bot #${i+1} · ${statusLabel}</div>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+// ── RENDER CONFIG ──────────────────────────────────────────────────────────
+function renderConfig(s) {
+  if (!s) return;
+  document.getElementById('config-bot-settings').innerHTML = `
+    <div class="info-row"><div class="info-key"><strong>Prefix</strong></div><div class="info-val">${s.prefix}</div></div>
+    <div class="info-row"><div class="info-key"><strong>Sub-Prefixes</strong></div><div class="info-val">${(s.subprefix||[]).join(', ') || '—'}</div></div>
+    <div class="info-row"><div class="info-key"><strong>Timezone</strong></div><div class="info-val">${s.timezone}</div></div>
+    <div class="info-row"><div class="info-key"><strong>Developer</strong></div><div class="info-val">${s.developer}</div></div>
+  `;
+  document.getElementById('config-access-control').innerHTML = `
+    <div class="info-row"><div class="info-key"><strong>Active Bots</strong></div><div class="info-val">${s.botCount}</div></div>
+    <div class="info-row"><div class="info-key"><strong>Total Commands</strong></div><div class="info-val">${s.commandCount}</div></div>
+    <div class="info-row"><div class="info-key"><strong>Multi-Bot</strong></div><div class="info-val" style="color:var(--green)">Enabled</div></div>
+    <div class="info-row"><div class="info-key"><strong>Platform</strong></div><div class="info-val">Telegram Bot API</div></div>
+    <div class="info-row"><div class="info-key"><strong>Runtime</strong></div><div class="info-val">Node.js ESM</div></div>
+  `;
+}
+
+// ── SEARCH / FILTER WIRING ─────────────────────────────────────────────────
+document.getElementById('cmd-search').addEventListener('input', e => buildCommandsTable(e.target.value, document.getElementById('cmd-filter-cat').value, document.getElementById('cmd-filter-type').value));
+document.getElementById('cmd-filter-cat').addEventListener('change', e => buildCommandsTable(document.getElementById('cmd-search').value, e.target.value, document.getElementById('cmd-filter-type').value));
+document.getElementById('cmd-filter-type').addEventListener('change', e => buildCommandsTable(document.getElementById('cmd-search').value, document.getElementById('cmd-filter-cat').value, e.target.value));
+
+function refreshPrettySelect(selectId) {
+  const select = document.getElementById(selectId);
+  const wrap = document.querySelector(`.pretty-select[data-select="${selectId}"]`);
+  if (!select || !wrap) return;
+  const menu = wrap.querySelector('.pretty-select-menu');
+  const label = wrap.querySelector('.pretty-select-label');
+  menu.innerHTML = '';
+  [...select.options].forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pretty-option' + (opt.value === select.value ? ' active' : '');
+    btn.innerHTML = `<span>${opt.textContent}</span><span class="dot"></span>`;
+    btn.addEventListener('click', () => {
+      select.value = opt.value;
+      select.dispatchEvent(new Event('change'));
+      label.textContent = opt.textContent;
+      wrap.classList.remove('open');
+      refreshPrettySelect(selectId);
+    });
+    menu.appendChild(btn);
+  });
+  const current = select.options[select.selectedIndex];
+  if (current) label.textContent = current.textContent;
+}
+
+function initPrettySelects() {
+  document.querySelectorAll('.pretty-select').forEach(wrap => {
+    const btn = wrap.querySelector('.pretty-select-btn');
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = !wrap.classList.contains('open');
+      document.querySelectorAll('.pretty-select').forEach(w => w.classList.remove('open'));
+      wrap.classList.toggle('open', willOpen);
+    });
+    refreshPrettySelect(wrap.dataset.select);
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.pretty-select').forEach(w => w.classList.remove('open'));
+  });
+}
+initPrettySelects();
+document.getElementById('evt-search').addEventListener('input', e => buildEventsList(e.target.value));
+
+// ── TOKEN EYE ──────────────────────────────────────────────────────────────
+const tokenInput   = document.getElementById('token-input');
+const tokenEyeBtn  = document.getElementById('token-eye-btn');
+const tokenEyeIcon = document.getElementById('token-eye-icon');
+tokenEyeBtn.addEventListener('click', () => {
+  const hidden = tokenInput.type === 'password';
+  tokenInput.type = hidden ? 'text' : 'password';
+  tokenEyeIcon.textContent = hidden ? 'visibility' : 'visibility_off';
+});
+
+// ── REGISTER / REVOKE ──────────────────────────────────────────────────────
+document.getElementById('btn-register').addEventListener('click', async () => {
+  navigate('tokens');
+  const token = tokenInput.value.trim();
+  const btn = document.getElementById('btn-register');
+  clog('INFO', 'Initiating token registration...');
+  const v = validateToken(token);
+  if (!v.valid) { clog('ERR', `Validation failed — ${v.reason}`); return; }
+  clog('SYS', `Validating token structure → ${maskToken(token)}`);
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Registering...`;
+  try {
+    const data = await apiFetch('/api/tokens', { method: 'POST', body: JSON.stringify({ token }) });
+    await loadTokens();
+    clog('OK', data.message || `Token registered → ${maskToken(token)}`);
+    if (data.username) clog('SYS', `Bot @${data.username} is now live (hot-started, no restart needed).`);
+    tokenInput.value = '';
+  } catch (err) { clog('ERR', err.message); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = `<span class="material-icons-round">verified_user</span> Register Token`;
+  }
+});
+
+document.getElementById('btn-deregister').addEventListener('click', async () => {
+  navigate('tokens');
+  const token = tokenInput.value.trim();
+  const btn = document.getElementById('btn-deregister');
+  clog('INFO', 'Initiating token removal...');
+  const v = validateToken(token);
+  if (!v.valid) { clog('ERR', `Validation failed — ${v.reason}`); return; }
+  clog('SYS', `Removing token → ${maskToken(token)}`);
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner" style="border-color:rgba(240,113,120,0.3);border-top-color:var(--red)"></span> Revoking...`;
+  try {
+    const data = await apiFetch('/api/tokens', { method: 'DELETE', body: JSON.stringify({ token }) });
+    await loadTokens();
+    clog('OK', data.message || `Token removed → ${maskToken(token)}`);
+    if (data.stopped) clog('SYS', `Bot @${data.username} has been hot-stopped (no restart needed).`);
+    tokenInput.value = '';
+  } catch (err) { clog('ERR', err.message); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = `<span class="material-icons-round">remove_circle_outline</span> Revoke Token`;
+  }
+});
+
+// ── DATA LOADERS ───────────────────────────────────────────────────────────
+async function loadStatus() {
+  const s = await apiFetch('/api/status');
+  setConnected(true);
+  renderStatus(s);
+  renderConfig(s);
+}
+
+async function loadCommands() {
+  const cmds = await apiFetch('/api/commands');
+  renderCommands(cmds);
+}
+
+async function loadEvents() {
+  const evts = await apiFetch('/api/events');
+  renderEvents(evts);
+}
+
+async function loadTokens() {
+  const tokens = await apiFetch('/api/tokens');
+  renderTokens(tokens);
+}
+
+async function loadAll() {
+  try {
+    await Promise.all([loadStatus(), loadCommands(), loadEvents(), loadTokens()]);
+    setConnected(true);
+  } catch (err) {
+    setConnected(false);
+    console.error('Dashboard load error:', err);
+  }
+}
+
+// ── BOOT ───────────────────────────────────────────────────────────────────
+loadAll();
+
+// Restore last visited section on refresh
+const savedSection = localStorage.getItem('sakura-ai-current-section') || 'dashboard';
+navigate(savedSection);
+
+// Live polling
+setInterval(async () => {
+  try {
+    await loadStatus();
+    await loadTokens();
+    setConnected(true);
+  } catch {
+    setConnected(false);
+  }
+}, 5000);
+
+setTimeout(() => {
+  clog('SYS', 'Sakura AI Dashboard v2.0 initialized.');
+  clog('INFO', 'Connecting to Sakura AI API server...');
+}, 200);
+</script>
+</body>
+</html>
