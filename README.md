@@ -249,7 +249,7 @@ Sakura-Bot-V1.5/
 
 Commands live under `scripts/cmds/<category>/`. Each file is an ESM module. **Do not import the engine** — everything is injected as handler arguments.
 
-Metadata export is named **`eren`** (not `meta`).
+Metadata export is named **`eren`**.
 
 ```js
 export const eren = {
